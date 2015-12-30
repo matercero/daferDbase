@@ -31,7 +31,7 @@ public class DBFWriterTest {
 //    public static void main(String[] args) throws DBFException, IOException {
 //        WriterDbf(args);
 //    }
-    public static void WriterDbf(String args[])
+    public static void WriterDbf(Date args[])
             throws DBFException, IOException, SQLException {
 
         // let us create field definitions first
