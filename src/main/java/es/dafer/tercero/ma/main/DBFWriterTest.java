@@ -62,7 +62,9 @@ public class DBFWriterTest {
         DBFWriter writer = new DBFWriter();
         writer.setFields(fields);
 
-        SimpleDateFormat dt1 = new SimpleDateFormat("dd/MM/yy");
+        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy/MM/dd");
+        String fechaDesde = dt1.format(args[0]);
+        String fechaHasta = dt1.format(args[1]);
         Connection conexion = null;
 
         try {
@@ -75,45 +77,45 @@ public class DBFWriterTest {
             // Preparamos la consulta 
             Statement s = conexion.createStatement();
             //ResultSet rs = s.executeQuery("select * from clientes LIMIT 30");
-            String sql = "SELECT DISTINCT fc.serie, fc.numero,  fc.fecha,"
-                    + "replace(TRUNCATE(fc.baseimponible, 2),'.',',') BASEBAS,"
+            String sql = "SELECT DISTINCT fc.serie, fc.fecha, fc.numero,"
+                    + "replace(TRUNCATE(fc.baseimponible, 2),'.',',') BASEBAS, "
                     + "replace(TRUNCATE(fc.impuestos, 2),'.',',') IMPTBAS "
                     + "FROM    dafer2.facturas_clientes fc,"
                     + "        dafer2.estadosfacturasclientes efc "
                     + "WHERE efc.id = 1"
-                    + "  AND DATE(fc.fecha) BETWEEN '2015/01/01' AND '2015/01/05'"
+                    + "  AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
                     + "  ORDER BY fc.fecha DESC;";
             logger.info("Consulta SQL =" + sql);
+
             ResultSet rs = s.executeQuery(sql);
+
             // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
+            Object rowData[] = new Object[TOTAL];
+            int i, cnt = 0;
             while (rs.next()) {
-                System.out.println(rs.getString(1) + " " + rs.getInt(2) + " " + dt1.format(rs.getDate(3)));
+                i = 0;
+//                System.out.println(rs.getString(1) + " "  + dt1.format(rs.getDate(2)) + " " + rs.getInt(3) );
+                rowData[i] = rs.getString(1);
+                rowData[++i] = rs.getDate(2);
+                rowData[++i] = rs.getString(3);
+                writer.addRecord(rowData);
+                rowData = new Object[TOTAL];
+                cnt++;
             }
+            logger.info("Total registro  =" + cnt);
 
             /**
              *
              */
-            Object rowData[] = new Object[TOTAL];
-            rowData[0] = "C";
-            rowData[1] = new Date();
-            rowData[2] = "30";
-            writer.addRecord(rowData);
+//            Object rowData[] = new Object[TOTAL];
+//            rowData[0] = "C";
+//            rowData[1] = new Date();
+//            rowData[2] = "30";
+//            writer.addRecord(rowData);
 
-            rowData = new Object[TOTAL];
-            rowData[0] = "D";
-            rowData[1] = new Date();
-            rowData[2] = "30";
-            writer.addRecord(rowData);
-
-            rowData = new Object[TOTAL];
-            rowData[0] = "C";
-            rowData[1] = new Date();
-            rowData[2] = "30";
-            writer.addRecord(rowData);
-            
             /*
             Creacion de File TENCOM
-            */
+             */
             SimpleDateFormat dt = new SimpleDateFormat("HHmm_ddMMyyyy");
             String nameFile = PATH_FILE + dt.format(new Date()) + ".dbf";
             File fileDbf = new File(nameFile);
@@ -125,6 +127,7 @@ public class DBFWriterTest {
 
         } catch (Exception e) {
             e.printStackTrace();
+            logger.info("ERROR:: " + e.getMessage());
             resultado = -1;
         } finally {
             // Cerramos la conexion a la base de datos. 

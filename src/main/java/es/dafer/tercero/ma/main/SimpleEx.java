@@ -1,13 +1,15 @@
 package es.dafer.tercero.ma.main;
 
 import com.linuxense.javadbf.DBFException;
+import static es.dafer.tercero.ma.main.DBFWriterTest.prop;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.DateFormat;
-import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,6 +45,8 @@ public class SimpleEx extends JPanel {
     JButton jbt2 = new JButton("Cerrar");
     JFormattedTextField inputD, inputH;
 
+    private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+
 //    JButton jbt3 = new JButton("Button3");
 //    JButton jbt4 = new JButton("Button4");
     public SimpleEx() {
@@ -50,17 +54,14 @@ public class SimpleEx extends JPanel {
         Box box = Box.createVerticalBox();
 
         JLabel labelD, labelH;
-        Format fechaDesde = DateFormat.getDateInstance(DateFormat.SHORT);
-        Format fechaHasta = DateFormat.getDateInstance(DateFormat.SHORT);
+
         labelD = new JLabel("Fecha Desde: ");
-        inputD = new JFormattedTextField(fechaDesde);
+        inputD = new JFormattedTextField(df.format(new Date()));
+        inputD.setColumns(20);
+
         labelH = new JLabel("Hasta: ");
-        inputD = new JFormattedTextField(fechaHasta);
-        inputD.setValue(new Date());
-        inputD.setColumns(10);
-        inputH = new JFormattedTextField(fechaHasta);
-        inputH.setValue(new Date());
-        inputH.setColumns(10);
+        inputH = new JFormattedTextField(df.format(new Date()));
+        inputH.setColumns(20);
 
         box.add(Box.createVerticalStrut(10));
         box.add(labelD);
@@ -74,14 +75,15 @@ public class SimpleEx extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
 
-                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
                 Date dateD = new Date();
                 Date dateH = new Date();
                 try {
-                    dateD = formatter.parse(inputD.getText());
-                    dateH = formatter.parse(inputH.getText());
+                    dateD = df.parse(inputD.getText());
+                    dateH = df.parse(inputH.getText());
+
                 } catch (ParseException ex) {
-                    Logger.getLogger(SimpleEx.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(SimpleEx.class
+                            .getName()).log(Level.SEVERE, null, ex);
                 }
 
                 if (source instanceof JButton) {
@@ -96,14 +98,20 @@ public class SimpleEx extends JPanel {
                                 logger.info("Proceso finalizado correctamente.");
                             } else {
                                 logger.warning("ERROR: se ha producido un error.");
+
                             }
                         } catch (SQLException ex) {
-                            Logger.getLogger(SimpleEx.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(SimpleEx.class
+                                    .getName()).log(Level.SEVERE, null, ex);
+
                         }
                     } catch (DBFException ex) {
-                        Logger.getLogger(SimpleEx.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(SimpleEx.class
+                                .getName()).log(Level.SEVERE, null, ex);
+
                     } catch (IOException ex) {
-                        Logger.getLogger(SimpleEx.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(SimpleEx.class
+                                .getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -121,7 +129,6 @@ public class SimpleEx extends JPanel {
                 System.exit(0);
             }
         });
-
         add(box);
     }
 
@@ -131,20 +138,18 @@ public class SimpleEx extends JPanel {
         frame.setLocationByPlatform(true);
         frame.pack();
         frame.setVisible(true);
-
     }
 
     public static void main(String[] args) {
 
         try {
-
+            getProperties();
             // This block configure the logger with handler and formatter  
-            fh = new FileHandler("D:\\_eme3\\LogFileDafer.log");
+            fh = new FileHandler(prop.getProperty("pathLog"));
             logger.addHandler(fh);
+            logger.info("Path log: " + prop.getProperty("pathLog"));
             SimpleFormatter formatter = new SimpleFormatter();
-            fh.setFormatter(formatter);
-            // the following statement is used to log any messages  
-            logger.info("Iniciando proceso....");
+            fh.setFormatter(formatter);            
 
         } catch (SecurityException e) {
             e.printStackTrace();
@@ -152,10 +157,31 @@ public class SimpleEx extends JPanel {
             e.printStackTrace();
         }
 
+        logger.info("Iniciando proceso....");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGui();
             }
         });
+    }//main
+
+    private static void getProperties() {
+        InputStream input = null;
+        try {
+            input = new FileInputStream("config.properties");
+            // load a properties file
+            prop.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 }
