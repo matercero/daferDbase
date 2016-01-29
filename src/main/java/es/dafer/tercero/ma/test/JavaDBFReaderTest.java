@@ -1,3 +1,5 @@
+package es.dafer.tercero.ma.test;
+
 
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;

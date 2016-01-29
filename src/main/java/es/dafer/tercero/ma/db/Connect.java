@@ -22,7 +22,7 @@ public class Connect {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             // Establecemos la conexión con la base de datos. 
-            conexion = DriverManager.getConnection("jdbc:mysql://localhost/dafer2", "root", "root");
+            conexion = DriverManager.getConnection("jdbc:mysql://localhost:8080/dafer2", "root", "root");
             // Preparamos la consulta 
             Statement s = conexion.createStatement();
             ResultSet rs = s.executeQuery("select * from clientes LIMIT 30");
