@@ -74,10 +74,12 @@ public class DBFWriterTest {
             conexion = DriverManager.getConnection(prop.getProperty("pathConnectMysql"),
                     prop.getProperty("dbuser"), prop.getProperty("dbpassword"));
             logger.info("Conexion a bbdd EXITO");
-            // Preparamos la consulta 
+            // Consulta 
             Statement s = conexion.createStatement();
-            //ResultSet rs = s.executeQuery("select * from clientes LIMIT 30");
-            String sql = "SELECT DISTINCT fc.serie, fc.fecha, fc.numero,"
+            String sql = "SELECT DISTINCT "
+                    + "fc.fecha, "
+                    + "fc.serie, "
+                    + "fc.numero,"
                     + "replace(TRUNCATE(fc.baseimponible, 2),'.',',') BASEBAS, "
                     + "replace(TRUNCATE(fc.impuestos, 2),'.',',') IMPTBAS "
                     + "FROM    dafer2.facturas_clientes fc,"
@@ -85,8 +87,7 @@ public class DBFWriterTest {
                     + "WHERE efc.id = 1"
                     + "  AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
                     + "  ORDER BY fc.fecha DESC;";
-            logger.info("Consulta SQL =" + sql);
-
+            logger.info("Consulta SQL = " + sql);
             ResultSet rs = s.executeQuery(sql);
 
             // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
@@ -94,15 +95,19 @@ public class DBFWriterTest {
             int i, cnt = 0;
             while (rs.next()) {
                 i = 0;
-//                System.out.println(rs.getString(1) + " "  + dt1.format(rs.getDate(2)) + " " + rs.getInt(3) );
-                rowData[i] = rs.getString(1);
-                rowData[++i] = rs.getDate(2);
-                rowData[++i] = rs.getString(3);
+                System.out.println(dt1.format(rs.getDate(1)) + " " + rs.getString(2) + " " + rs.getString(3)
+                        + " " + rs.getString(4) + " " + rs.getString(5));
+                rowData[i] = "C"; //TIPREG
+                rowData[++i] = rs.getDate(1);   //DOCFEC
+                rowData[++i] = rs.getString(2); //DOCSER
+                rowData[++i] = rs.getString(3); //DOCNUM
+                rowData[++i] = "IV"; //CODTIP
+                rowData[++i] = "IDiva"; //CODMOD
                 writer.addRecord(rowData);
                 rowData = new Object[TOTAL];
                 cnt++;
             }
-            logger.info("Total registro  =" + cnt);
+            logger.info("Total registro = " + cnt);
 
             /**
              *
@@ -119,15 +124,15 @@ public class DBFWriterTest {
             SimpleDateFormat dt = new SimpleDateFormat("HHmm_ddMMyyyy");
             String nameFile = PATH_FILE + dt.format(new Date()) + ".dbf";
             File fileDbf = new File(nameFile);
-            System.out.println("Fichero creado: " + nameFile);
             logger.info("Fichero creado: " + nameFile);
+            
             FileOutputStream fos = new FileOutputStream(fileDbf);
             writer.write(fos);
             fos.close();
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.info("ERROR:: " + e.getMessage());
+            logger.info("ERROR: " + e.getMessage());
             resultado = -1;
         } finally {
             // Cerramos la conexion a la base de datos. 
@@ -187,7 +192,7 @@ public class DBFWriterTest {
         fields[++i] = new DBFField();
         fields[i].setName("DOCSER");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(2);
+        fields[i].setFieldLength(6);
 
         fields[++i] = new DBFField();
         fields[i].setName("DOCNUM");

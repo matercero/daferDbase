@@ -55,7 +55,7 @@ public class SimpleEx extends JPanel {
 
         JLabel labelD, labelH;
 
-        labelD = new JLabel("Fecha Desde: ");
+        labelD = new JLabel("Fecha Desde: dd/mm/yyyy");
         inputD = new JFormattedTextField(df.format(new Date()));
         inputD.setColumns(20);
 
