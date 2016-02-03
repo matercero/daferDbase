@@ -2,6 +2,7 @@ package es.dafer.tercero.ma.main;
 
 import com.linuxense.javadbf.DBFException;
 import static es.dafer.tercero.ma.main.DBFWriterTest.prop;
+import es.dafer.tercero.ma.utils.JDBFException;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +35,7 @@ import javax.swing.SwingUtilities;
  *
  * @author mtercero
  */
-public class SimpleEx extends JPanel {
+public class Principal extends JPanel {
 
     static Logger logger = Logger.getLogger("MyLog");
     static FileHandler fh;
@@ -49,18 +50,20 @@ public class SimpleEx extends JPanel {
 
 //    JButton jbt3 = new JButton("Button3");
 //    JButton jbt4 = new JButton("Button4");
-    public SimpleEx() {
+    public Principal() {
 
         Box box = Box.createVerticalBox();
 
         JLabel labelD, labelH;
 
         labelD = new JLabel("Fecha Desde: dd/mm/yyyy");
-        inputD = new JFormattedTextField(df.format(new Date()));
+      //  inputD = new JFormattedTextField(df.format(new Date()));
+        inputD = new JFormattedTextField("01/02/2015");
         inputD.setColumns(20);
 
         labelH = new JLabel("Hasta: ");
-        inputH = new JFormattedTextField(df.format(new Date()));
+       // inputH = new JFormattedTextField(df.format(new Date()));
+        inputH = new JFormattedTextField("20/02/2015");
         inputH.setColumns(20);
 
         box.add(Box.createVerticalStrut(10));
@@ -70,8 +73,7 @@ public class SimpleEx extends JPanel {
         box.add(inputH);
 
         box.add(jbt1);
-        jbt1.addActionListener(
-                new ActionListener() {
+        jbt1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
 
@@ -82,7 +84,7 @@ public class SimpleEx extends JPanel {
                     dateH = df.parse(inputH.getText());
 
                 } catch (ParseException ex) {
-                    Logger.getLogger(SimpleEx.class
+                    Logger.getLogger(Principal.class
                             .getName()).log(Level.SEVERE, null, ex);
                 }
 
@@ -101,16 +103,18 @@ public class SimpleEx extends JPanel {
 
                             }
                         } catch (SQLException ex) {
-                            Logger.getLogger(SimpleEx.class
+                            Logger.getLogger(Principal.class
                                     .getName()).log(Level.SEVERE, null, ex);
 
+                        } catch (JDBFException ex) {
+                            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     } catch (DBFException ex) {
-                        Logger.getLogger(SimpleEx.class
+                        Logger.getLogger(Principal.class
                                 .getName()).log(Level.SEVERE, null, ex);
 
                     } catch (IOException ex) {
-                        Logger.getLogger(SimpleEx.class
+                        Logger.getLogger(Principal.class
                                 .getName()).log(Level.SEVERE, null, ex);
                     }
                 }
@@ -133,7 +137,7 @@ public class SimpleEx extends JPanel {
     }
 
     public static void createAndShowGui() {
-        frame.add(new SimpleEx());
+        frame.add(new Principal());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationByPlatform(true);
         frame.pack();
