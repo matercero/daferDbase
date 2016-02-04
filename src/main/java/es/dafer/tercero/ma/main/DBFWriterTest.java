@@ -40,9 +40,7 @@ public class DBFWriterTest {
     private static String PATH_FILE = "C:\\"; //PARA WINDOWS DAFAULT
     static Properties prop = new Properties();
 
-//    public static void main(String[] args) throws DBFException, IOException {
-//        WriterDbf(args);
-//    }
+
     /**
      *
      * @param args
@@ -55,7 +53,7 @@ public class DBFWriterTest {
             throws DBFException, IOException, SQLException, JDBFException {
 
         int resultado = 0;
-        getProperties();
+        setProperties();
 
         logger.info("Iniciando WriterDbf....");
 
@@ -103,7 +101,7 @@ public class DBFWriterTest {
         return resultado;
     }
 
-    private static void getProperties() {
+    private static void setProperties() {
 
         InputStream input = null;
 
@@ -382,34 +380,9 @@ public class DBFWriterTest {
 
     private static void setDetalle(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
-        String sql = "SELECT DISTINCT "
-                + "fc.fecha DOCFEC, " //1
-                + "fc.serie DOCSER, " //2
-                + "LPAD(fc.numero ,6,'0') DOCNUM, " //3
-                + "cc.codigo CTACON, "
-                + "c.codcli CODTER, "
-                + "replace(TRUNCATE(fc.baseimponible, 2),'.',',') BASEBAS, " //4
-                + "replace(TRUNCATE(fc.impuestos, 2),'.',',') IMPTBAS, " // 5
-                + "ac.tiposiva_id CODMOD, " //6
-                + "replace(TRUNCATE(fc.total, 2),'.',',') AS TOTFAC, "
-                + " '' PORNOR, '' RECBAS, '' PORREC, '' PORTES, '' PORFIN, '' RFDPP, '' DESHOR, "
-                + " '' DESKM, '' TOTFAC, '' FECVTO1, '' IMPVTO1, '' FECVTO2, '' IMPVTO2, '' FECVTO3, '' IMPVTO3, "
-                + " '' FECVTO4, '' IMPVTO4, '' FECVTO5, '' IMPVTO5, '' FECVTO6, '' IMPVTO6, "
-                + " '' DIETENT, '' CODFORPAG, '' TIPFORPAG "
-                + "FROM dafer2.facturas_clientes fc"
-                + "   , dafer2.estadosfacturasclientes efc"
-                + "   , dafer2.albaranesclientes ac"
-                + "   , dafer2.cuentascontables cc"
-                + "   , dafer2.clientes c "
-                + "WHERE efc.id = 1"
-                + " AND ac.facturas_cliente_id = fc.id "
-                + " AND c.id = fc.cliente_id "
-                + " AND c.cuentascontable_id = cc.id "
-                + " AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
-                + " ORDER BY fc.fecha DESC;";
+        String sql = getConsulta(fechaDesde, fechaHasta);
         logger.info("DETALLE Consulta SQL = " + sql);
         ResultSet rs = s.executeQuery(sql);
-
         // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
         SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
         String auxFecha = "";
@@ -464,31 +437,8 @@ public class DBFWriterTest {
 
     private static void setCabecera(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
-        String sql = "SELECT DISTINCT "
-                + "fc.fecha DOCFEC, " //1
-                + "fc.serie DOCSER, " //2
-                + "LPAD(fc.numero ,6,'0') DOCNUM, " //3
-                + "cc.codigo CTACON, "
-                + "c.codcli CODTER, "
-                + "replace(TRUNCATE(fc.baseimponible, 2),'.',',') BASEBAS, " //4
-                + "replace(TRUNCATE(fc.impuestos, 2),'.',',') IMPTBAS, " // 5
-                + "ac.tiposiva_id CODMOD, " //6
-                + "replace(TRUNCATE(fc.total, 2),'.',',') AS TOTFAC, "
-                + " '' PORNOR, '' RECBAS, '' PORREC, '' PORTES, '' PORFIN, '' RFDPP, '' DESHOR, "
-                + " '' DESKM, '' TOTFAC, '' FECVTO1, '' IMPVTO1, '' FECVTO2, '' IMPVTO2, '' FECVTO3, '' IMPVTO3, "
-                + " '' FECVTO4, '' IMPVTO4, '' FECVTO5, '' IMPVTO5, '' FECVTO6, '' IMPVTO6, "
-                + " '' DIETENT, '' CODFORPAG, '' TIPFORPAG "
-                + "FROM    dafer2.facturas_clientes fc"
-                + "   , dafer2.estadosfacturasclientes efc"
-                + "   , dafer2.albaranesclientes ac"
-                + "   , dafer2.cuentascontables cc"
-                + "   , dafer2.clientes c "
-                + "WHERE efc.id = 1"
-                + " AND ac.facturas_cliente_id = fc.id "
-                + " AND c.id = fc.cliente_id "
-                + " AND c.cuentascontable_id = cc.id "
-                + " AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
-                + " ORDER BY fc.fecha DESC;";
+        String sql = getConsulta(fechaDesde, fechaHasta);
+        
         logger.info("CABECERA Consulta SQL = " + sql);
         ResultSet rs = s.executeQuery(sql);
         SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
@@ -540,5 +490,33 @@ public class DBFWriterTest {
         }
         logger.info("CABECERA Total registros = " + cnt);
 
+    }
+
+    private static String getConsulta(String fechaDesde, String fechaHasta) {
+       return "SELECT DISTINCT "
+                + "fc.fecha DOCFEC, " //1
+                + "fc.serie DOCSER, " //2
+                + "LPAD(fc.numero ,6,'0') DOCNUM, " //3
+                + "cc.codigo CTACON, "
+                + "c.codcli CODTER, "
+                + "replace(TRUNCATE(fc.baseimponible, 2),'.',',') BASEBAS, " //4
+                + "replace(TRUNCATE(fc.impuestos, 2),'.',',') IMPTBAS, " // 5
+                + "ac.tiposiva_id CODMOD, " //6
+                + "replace(TRUNCATE(fc.total, 2),'.',',') AS TOTFAC, "
+                + " '' PORNOR, '' RECBAS, '' PORREC, '' PORTES, '' PORFIN, '' RFDPP, '' DESHOR, "
+                + " '' DESKM, '' TOTFAC, '' FECVTO1, '' IMPVTO1, '' FECVTO2, '' IMPVTO2, '' FECVTO3, '' IMPVTO3, "
+                + " '' FECVTO4, '' IMPVTO4, '' FECVTO5, '' IMPVTO5, '' FECVTO6, '' IMPVTO6, "
+                + " '' DIETENT, '' CODFORPAG, '' TIPFORPAG "
+                + "FROM dafer2.facturas_clientes fc"
+                + "   , dafer2.estadosfacturasclientes efc"
+                + "   , dafer2.albaranesclientes ac"
+                + "   , dafer2.cuentascontables cc"
+                + "   , dafer2.clientes c "
+                + "WHERE efc.id = 1"
+                + " AND ac.facturas_cliente_id = fc.id "
+                + " AND c.id = fc.cliente_id "
+                + " AND c.cuentascontable_id = cc.id "
+                + " AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
+                + " ORDER BY fc.numero DESC;";
     }
 }
