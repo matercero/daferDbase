@@ -21,7 +21,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>es.dafer.tercero.ma.main.SimpleEx</mainClass>
+                  <mainClass>es.dafer.tercero.ma.main.Principal</mainClass>
                 </transformer>
               </transformers>
             </configuration>

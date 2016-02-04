@@ -3,10 +3,8 @@ package es.dafer.tercero.ma.main;
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFWriter;
-import es.dafer.tercero.ma.db.Connect;
 import static es.dafer.tercero.ma.main.Principal.logger;
 import es.dafer.tercero.ma.utils.JDBFException;
-import es.dafer.tercero.ma.utils.JDBField;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,10 +19,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
 
 /*
  * To change this template, choose Tools | Templates
@@ -119,8 +116,8 @@ public class DBFWriterTest {
                 PATH_FILE = prop.getProperty("pathFileWin");
             }
 
-            logger.info("PATH_FILE " + PATH_FILE);
-            logger.info("Conectado a bbdd = " + prop.getProperty("pathConnectMysql"));
+            logger.log(Level.INFO, "PATH_FILE {0}", PATH_FILE);
+            logger.log(Level.INFO, "Conectado a bbdd = {0}", prop.getProperty("pathConnectMysql"));
 
         } catch (IOException ex) {
             ex.printStackTrace();
