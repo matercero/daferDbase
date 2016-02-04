@@ -288,73 +288,73 @@ public class DBFWriterTest {
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO1");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(8);
+        fields[i].setDataType(DBFField.FIELD_TYPE_D);
+//        fields[i].setFieldLength(8);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO1");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
+        fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO2");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(8);
+        fields[i].setDataType(DBFField.FIELD_TYPE_D);
+//        fields[i].setFieldLength(8);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO2");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
+        fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO3");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(8);
+        fields[i].setDataType(DBFField.FIELD_TYPE_D);
+//        fields[i].setFieldLength(8);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO3");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
+        fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO4");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(8);
+        fields[i].setDataType(DBFField.FIELD_TYPE_D);
+//        fields[i].setFieldLength(8);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO4");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
+        fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO5");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(8);
+        fields[i].setDataType(DBFField.FIELD_TYPE_D);
+//        fields[i].setFieldLength(8);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO5");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
+        fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO6");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(8);
+        fields[i].setDataType(DBFField.FIELD_TYPE_D);
+//        fields[i].setFieldLength(8);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO6");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
+        fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
 
@@ -407,7 +407,7 @@ public class DBFWriterTest {
                 + " AND c.cuentascontable_id = cc.id "
                 + " AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
                 + " ORDER BY fc.fecha DESC;";
-        logger.info("Consulta SQL = " + sql);
+        logger.info("DETALLE Consulta SQL = " + sql);
         ResultSet rs = s.executeQuery(sql);
 
         // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
@@ -489,7 +489,7 @@ public class DBFWriterTest {
                 + " AND c.cuentascontable_id = cc.id "
                 + " AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
                 + " ORDER BY fc.fecha DESC;";
-        logger.info("Consulta SQL = " + sql);
+        logger.info("CABECERA Consulta SQL = " + sql);
         ResultSet rs = s.executeQuery(sql);
         SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
         String auxFecha = "";
@@ -518,18 +518,18 @@ public class DBFWriterTest {
             rowData[++i] = null; //DESHOR vacio
             rowData[++i] = rs.getDouble("DESKM");
             rowData[++i] = rs.getString("TOTFAC");
-            rowData[++i] = rs.getString("FECVTO1");
-            rowData[++i] = rs.getString("IMPVTO1");
-            rowData[++i] = rs.getString("FECVTO2");
-            rowData[++i] = rs.getString("IMPVTO2");
-            rowData[++i] = rs.getString("FECVTO3");
-            rowData[++i] = rs.getString("IMPVTO3");
-            rowData[++i] = rs.getString("FECVTO4");
-            rowData[++i] = rs.getString("IMPVTO4");
-            rowData[++i] = rs.getString("FECVTO5");
-            rowData[++i] = rs.getString("IMPVTO5");
-            rowData[++i] = rs.getString("FECVTO6");
-            rowData[++i] = rs.getString("IMPVTO6");
+            rowData[++i] = null; //rs.getString("FECVTO1");
+            rowData[++i] = null; //rs.getInt("IMPVTO1");
+            rowData[++i] = null; //rs.getString("FECVTO2");
+            rowData[++i] = null; //rs.getInt("IMPVTO2");
+            rowData[++i] = null; //rs.getString("FECVTO3");
+            rowData[++i] = null; //rs.getInt("IMPVTO3");
+            rowData[++i] = null; //rs.getString("FECVTO4");
+            rowData[++i] = null; //rs.getInt("IMPVTO4");
+            rowData[++i] = null; //rs.getString("FECVTO5");
+            rowData[++i] = null; //rs.getInt("IMPVTO5");
+            rowData[++i] = null; //rs.getString("FECVTO6");
+            rowData[++i] = null; //rs.getInt("IMPVTO6");
             rowData[++i] = null; //rs.getDouble("DIETENT");
             rowData[++i] = rs.getString("CODFORPAG");
             rowData[++i] = rs.getString("TIPFORPAG");
