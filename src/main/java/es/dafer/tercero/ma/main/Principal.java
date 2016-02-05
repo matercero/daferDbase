@@ -4,6 +4,8 @@ import com.linuxense.javadbf.DBFException;
 import static es.dafer.tercero.ma.main.DBFWriterTest.prop;
 import es.dafer.tercero.ma.utils.JDBFException;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
@@ -40,7 +42,7 @@ public class Principal extends JPanel {
     static Logger logger = Logger.getLogger("MyLog");
     static FileHandler fh;
 
-    static JFrame frame = new JFrame();
+    static JFrame frame = new JFrame("Generación TENCOM Dafer.");
 
     JButton jbt1 = new JButton("Crear fichero DBF");
     JButton jbt2 = new JButton("Cerrar");
@@ -57,14 +59,16 @@ public class Principal extends JPanel {
         JLabel labelD, labelH;
 
         labelD = new JLabel("Fecha Desde: dd/mm/yyyy");
-      //  inputD = new JFormattedTextField(df.format(new Date()));
+        //  inputD = new JFormattedTextField(df.format(new Date()));
         inputD = new JFormattedTextField("01/02/2015");
-        inputD.setColumns(20);
+        inputD.setColumns(10);
+//        inputD.setMaximumSize(new Dimension(10, 0));
 
         labelH = new JLabel("Hasta: ");
-       // inputH = new JFormattedTextField(df.format(new Date()));
+        // inputH = new JFormattedTextField(df.format(new Date()));
         inputH = new JFormattedTextField("05/02/2015");
-        inputH.setColumns(20);
+        inputH.setColumns(10);
+//        inputH.setMaximumSize(new Dimension(10, 0));
 
         box.add(Box.createVerticalStrut(10));
         box.add(labelD);
@@ -89,11 +93,13 @@ public class Principal extends JPanel {
                 }
 
                 if (source instanceof JButton) {
-                    JButton btn = (JButton) source;
-                    // Go ahead and do what you like
                     Date[] args = {dateD, dateH};
                     try {
                         try {
+                            
+                            JLabel label = new JLabel("A Very Simple Text Label");
+                            frame.add(label);
+                            
                             int result = DBFWriterTest.WriterDbf(frame, args, logger);
                             if (result == 0) {
                                 JOptionPane.showMessageDialog(frame, "Fichero creado correctamente.");
@@ -138,6 +144,8 @@ public class Principal extends JPanel {
 
     public static void createAndShowGui() {
         frame.add(new Principal());
+        frame.setSize(400, 400);
+        frame.setLayout(new FlowLayout());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationByPlatform(true);
         frame.pack();
@@ -153,7 +161,7 @@ public class Principal extends JPanel {
             logger.addHandler(fh);
             logger.info("Path log: " + prop.getProperty("pathLog"));
             SimpleFormatter formatter = new SimpleFormatter();
-            fh.setFormatter(formatter);            
+            fh.setFormatter(formatter);
 
         } catch (SecurityException e) {
             e.printStackTrace();

@@ -7,6 +7,8 @@
     <version>1.0</version>
     <name>daferDbase</name>
     <url>http://maven.apache.org</url>
+    
+   
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -28,6 +30,14 @@
     </dependencies>
     <build>
         <finalName>daferDbase</finalName>
+     <!--
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        -->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

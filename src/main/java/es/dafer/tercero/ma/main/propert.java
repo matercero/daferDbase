@@ -17,6 +17,27 @@ import java.util.Properties;
  */
 public class propert {
 
+    public String getConfigFile() {
+
+        Properties prop = new Properties();
+        String filePath = "";
+
+        try {
+
+            InputStream inputStream
+                    = getClass().getClassLoader().getResourceAsStream("config.properties");
+
+            prop.load(inputStream);
+            filePath = prop.getProperty("testMail");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return filePath;
+
+    }
+
     public static void main(String[] args) {
 
         Properties prop = new Properties();

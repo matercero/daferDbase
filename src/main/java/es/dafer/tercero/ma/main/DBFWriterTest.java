@@ -5,11 +5,14 @@ import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFWriter;
 import static es.dafer.tercero.ma.main.Principal.logger;
 import es.dafer.tercero.ma.utils.JDBFException;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -22,6 +25,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /*
  * To change this template, choose Tools | Templates
@@ -36,7 +41,6 @@ public class DBFWriterTest {
     private static final int TOTAL = 34;
     private static String PATH_FILE = "C:\\"; //PARA WINDOWS DAFAULT
     static Properties prop = new Properties();
-
 
     /**
      *
@@ -105,8 +109,6 @@ public class DBFWriterTest {
         try {
 
             input = new FileInputStream("config.properties");
-
-            // load a properties file
             prop.load(input);
 
             // get the property value and print it out
@@ -133,7 +135,7 @@ public class DBFWriterTest {
 
     }
 
-    private static void setFields(DBFField[] fields) {
+    private static void setFields(DBFField[] fields) throws UnsupportedEncodingException {
         logger.info("Creacion fichero .dbf.");
 
         /* 
@@ -162,215 +164,215 @@ public class DBFWriterTest {
         fields[i].setName("TIPREG");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(1);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("DOCFEC");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("DOCSER");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("DOCNUM");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(6);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("CODTIP");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("CODMOD");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("CODTER");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(5);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("CTACON");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(12);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("BASEBAS");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(10);
 //        fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPTBAS");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(10);
 //        fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("PORNOR");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(6);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("RECBAS");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("PORREC");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(6);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("PORTES");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(11);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("PORFIN");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(6);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("RFDPP");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(11);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("DESHOR");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(11);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("DESKM");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(11);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("TOTFAC");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(14);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO1");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO1");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO2");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO2");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO3");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO3");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO4");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO4");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO5");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO5");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO6");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO6");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("DIETENT");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("CODFORPAG");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(3);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         fields[++i] = new DBFField();
         fields[i].setName("TIPFORPAG");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(1);
-        logger.info("Campo " + i + "-" + fields[i].getName() + "-" + fields[i].getDataType());
+        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
 
         logger.info("Total columnas en fichero .dbf = " + i);
     }
@@ -435,7 +437,7 @@ public class DBFWriterTest {
     private static void setCabecera(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
         String sql = getConsulta(fechaDesde, fechaHasta);
-        
+
         logger.info("CABECERA Consulta SQL = " + sql);
         ResultSet rs = s.executeQuery(sql);
         SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
@@ -490,7 +492,7 @@ public class DBFWriterTest {
     }
 
     private static String getConsulta(String fechaDesde, String fechaHasta) {
-       return "SELECT DISTINCT "
+        return "SELECT DISTINCT "
                 + "fc.fecha DOCFEC, " //1
                 + "fc.serie DOCSER, " //2
                 + "LPAD(fc.numero ,6,'0') DOCNUM, " //3
@@ -515,5 +517,10 @@ public class DBFWriterTest {
                 + " AND c.cuentascontable_id = cc.id "
                 + " AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
                 + " ORDER BY fc.numero DESC;";
+    }
+
+    private static String getFieldDataType(byte dataType) throws UnsupportedEncodingException {
+        byte[] byteArray = new byte[]{dataType};
+        return new String(byteArray, "UTF-8");
     }
 }
