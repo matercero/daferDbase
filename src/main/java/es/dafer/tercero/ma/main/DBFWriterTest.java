@@ -3,10 +3,9 @@ package es.dafer.tercero.ma.main;
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFWriter;
+import es.dafer.tercero.ma.db.Connect;
 import static es.dafer.tercero.ma.main.Principal.logger;
 import es.dafer.tercero.ma.utils.JDBFException;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -24,9 +22,9 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Box;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /*
  * To change this template, choose Tools | Templates
@@ -44,13 +42,17 @@ public class DBFWriterTest {
 
     /**
      *
+     * @param frame
      * @param args
+     * @param box
+     * @param logger
      * @return 0=OK ; -1=ERROR
      * @throws DBFException
      * @throws IOException
      * @throws SQLException
+     * @throws es.dafer.tercero.ma.utils.JDBFException
      */
-    public static int WriterDbf(JFrame frame, Date args[], Logger logger)
+    public static int WriterDbf(JFrame frame,  Date args[], Logger logger)
             throws DBFException, IOException, SQLException, JDBFException {
 
         int resultado = 0;
@@ -70,11 +72,8 @@ public class DBFWriterTest {
         Connection conexion = null;
 
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            // Establecemos la conexión con la base de datos.
-            conexion = DriverManager.getConnection(prop.getProperty("pathConnectMysql"),
-                    prop.getProperty("dbuser"), prop.getProperty("dbpassword"));
-            logger.info("Conexion a bbdd EXITO");
+
+            conexion = Connect.getConexion(prop, logger);
 
             setCabecera(conexion, writer, fechaDesde, fechaHasta);
 
@@ -84,7 +83,7 @@ public class DBFWriterTest {
             SimpleDateFormat dt = new SimpleDateFormat("ddMMyyyy_HHmm");
             String nameFile = PATH_FILE + dt.format(new Date()) + ".dbf";
             File fileDbf = new File(nameFile);
-            logger.info("Fichero creado: " + nameFile);
+            logger.log(Level.INFO, "Fichero creado: {0}", nameFile);
 
             FileOutputStream fos = new FileOutputStream(fileDbf);
             writer.write(fos);
@@ -92,7 +91,7 @@ public class DBFWriterTest {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.info("ERROR: " + e.getMessage());
+            logger.log(Level.INFO, "ERROR: {0}", e.getMessage());
             resultado = -1;
         } finally {
             // Cerramos la conexion a la base de datos. 
@@ -118,8 +117,8 @@ public class DBFWriterTest {
                 PATH_FILE = prop.getProperty("pathFileWin");
             }
 
-            logger.log(Level.INFO, "PATH_FILE {0}", PATH_FILE);
-            logger.log(Level.INFO, "Conectado a bbdd = {0}", prop.getProperty("pathConnectMysql"));
+            logger.log(Level.CONFIG, "PATH_FILE {0}", PATH_FILE);
+            logger.log(Level.CONFIG, "Conectado a bbdd = {0}", prop.getProperty("pathConnectMysql"));
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -164,42 +163,42 @@ public class DBFWriterTest {
         fields[i].setName("TIPREG");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(1);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("DOCFEC");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("DOCSER");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("DOCNUM");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(6);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("CODTIP");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("CODMOD");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("CODTER");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(5);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("CTACON");
@@ -212,35 +211,35 @@ public class DBFWriterTest {
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(10);
 //        fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPTBAS");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(10);
 //        fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("PORNOR");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(6);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("RECBAS");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("PORREC");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(6);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("PORTES");
@@ -254,28 +253,28 @@ public class DBFWriterTest {
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(6);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("RFDPP");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(11);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("DESHOR");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(11);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("DESKM");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(11);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("TOTFAC");
@@ -287,100 +286,100 @@ public class DBFWriterTest {
         fields[i].setName("FECVTO1");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO1");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO2");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO2");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO3");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO3");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO4");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO4");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO5");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO5");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO6");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
 //        fields[i].setFieldLength(8);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO6");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("DIETENT");
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(10);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("CODFORPAG");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(3);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("TIPFORPAG");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(1);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
-        logger.info("Total columnas en fichero .dbf = " + i);
+        logger.log(Level.INFO, "Total columnas en fichero .dbf = {0}", i);
     }
 
     private static void setDetalle(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
         String sql = getConsulta(fechaDesde, fechaHasta);
-        logger.info("DETALLE Consulta SQL = " + sql);
+        logger.log(Level.INFO, "DETALLE Consulta SQL = {0}", sql);
         ResultSet rs = s.executeQuery(sql);
         // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
         SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
@@ -431,14 +430,14 @@ public class DBFWriterTest {
             rowData = new Object[TOTAL];
             cnt++;
         }
-        logger.info("DETALLE Total registros = " + cnt);
+        logger.log(Level.INFO, "DETALLE Total registros = {0}", cnt);
     }
 
     private static void setCabecera(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
         String sql = getConsulta(fechaDesde, fechaHasta);
 
-        logger.info("CABECERA Consulta SQL = " + sql);
+        logger.log(Level.INFO, "CABECERA Consulta SQL = {0}", sql);
         ResultSet rs = s.executeQuery(sql);
         SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
         String auxFecha = "";
@@ -487,7 +486,7 @@ public class DBFWriterTest {
             rowData = new Object[TOTAL];
             cnt++;
         }
-        logger.info("CABECERA Total registros = " + cnt);
+        logger.log(Level.INFO, "CABECERA Total registros = {0}", cnt);
 
     }
 

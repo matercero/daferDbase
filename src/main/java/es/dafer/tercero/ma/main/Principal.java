@@ -27,6 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 /*
@@ -47,14 +48,13 @@ public class Principal extends JPanel {
     JButton jbt1 = new JButton("Crear fichero DBF");
     JButton jbt2 = new JButton("Cerrar");
     JFormattedTextField inputD, inputH;
+    Box box = Box.createVerticalBox();
 
     private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 
 //    JButton jbt3 = new JButton("Button3");
 //    JButton jbt4 = new JButton("Button4");
     public Principal() {
-
-        Box box = Box.createVerticalBox();
 
         JLabel labelD, labelH;
 
@@ -96,17 +96,12 @@ public class Principal extends JPanel {
                     Date[] args = {dateD, dateH};
                     try {
                         try {
-                            
-                            JLabel label = new JLabel("A Very Simple Text Label");
-                            frame.add(label);
-                            
                             int result = DBFWriterTest.WriterDbf(frame, args, logger);
                             if (result == 0) {
                                 JOptionPane.showMessageDialog(frame, "Fichero creado correctamente.");
                                 logger.info("Proceso finalizado correctamente.");
                             } else {
                                 logger.warning("ERROR: se ha producido un error.");
-
                             }
                         } catch (SQLException ex) {
                             Logger.getLogger(Principal.class
@@ -127,8 +122,6 @@ public class Principal extends JPanel {
             }
         });
 
-//        box.add(Box.createVerticalStrut(10));
-//        box.add(jbt4);
 //        box.add(Box.createVerticalStrut(10));
         //BOTON SALIR
         box.add(Box.createVerticalStrut(30));
