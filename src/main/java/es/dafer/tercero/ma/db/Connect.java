@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -20,7 +21,7 @@ import java.util.logging.Logger;
 public class Connect {
 
     //public static void main(String[] args) throws SQLException {
-    public void conect() throws SQLException {      
+    public void conect() throws SQLException {
 //        Connection conexion = null;
 //        try {
 //            Class.forName("com.mysql.jdbc.Driver");
@@ -40,9 +41,9 @@ public class Connect {
 //            conexion.close();
 //        }
     }
-    
-    public static Connection getConexion(Properties prop,  Logger logger) {
-         Connection conexion = null;
+
+    public static Connection getConexion(Properties prop, Logger logger) {
+        Connection conexion = null;
         try {
             Class.forName("com.mysql.jdbc.Driver");
             // Establecemos la conexión con la base de datos.
@@ -51,7 +52,7 @@ public class Connect {
             logger.info("Conexion a bbdd EXITO");
         } catch (ClassNotFoundException e) {
             logger.log(Level.INFO, "Class no encontrada : {0}", e.getMessage());
-        } catch (SQLException e) { 
+        } catch (SQLException e) {
             logger.log(Level.INFO, "SQLException : {0}", e.getMessage());
         }
         return conexion;

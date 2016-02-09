@@ -6,25 +6,24 @@ import com.linuxense.javadbf.DBFWriter;
 import es.dafer.tercero.ma.db.Connect;
 import static es.dafer.tercero.ma.main.Principal.logger;
 import es.dafer.tercero.ma.utils.JDBFException;
+import static es.dafer.tercero.ma.utils.JDBField.setFields;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Box;
 import javax.swing.JFrame;
-import javax.swing.JTextField;
 
 /*
  * To change this template, choose Tools | Templates
@@ -39,6 +38,7 @@ public class DBFWriterTest {
     private static final int TOTAL = 34;
     private static String PATH_FILE = "C:\\"; //PARA WINDOWS DAFAULT
     static Properties prop = new Properties();
+    static SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
 
     /**
      *
@@ -61,7 +61,7 @@ public class DBFWriterTest {
         logger.info("Iniciando WriterDbf....");
 
         DBFField fields[] = new DBFField[TOTAL];
-        setFields(fields);
+        setFields(fields, logger);
 
         DBFWriter writer = new DBFWriter();
         writer.setFields(fields);
@@ -91,7 +91,7 @@ public class DBFWriterTest {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.log(Level.INFO, "ERROR: {0}", e.getMessage());
+            logger.log(Level.INFO, "Exception: {0}", e.getMessage());
             resultado = -1;
         } finally {
             // Cerramos la conexion a la base de datos. 
@@ -134,276 +134,28 @@ public class DBFWriterTest {
 
     }
 
-    private static void setFields(DBFField[] fields) throws UnsupportedEncodingException {
-        logger.info("Creacion fichero .dbf.");
-
-        /* 
-        TIPREG,C,1	DOCFEC,D	
-        DOCSER,C,2	DOCNUM,C,6	
-        CODTIP,C,2	CODMOD,C,2	
-        CODTER,C,5	CTACON,C,12	
-        BASEBAS,N,10,2	IMPTBAS,N,10,2	
-        PORNOR,N,6,2	RECBAS,N,10,2	
-        PORREC,N,6,2	PORTES,N,11,2	
-        PORFIN,N,6,2	RFDPP,N,11,2	
-        DESHOR,N,11,2	DESKM,N,11,2	
-        TOTFAC,N,14,2	
-        FECVTO1,D	IMPVTO1,N,10,2	
-        FECVTO2,D	IMPVTO2,N,10,2	
-        FECVTO3,D	IMPVTO3,N,10,2	
-        FECVTO4,D	IMPVTO4,N,10,2	
-        FECVTO5,D	IMPVTO5,N,10,2	
-        FECVTO6,D	IMPVTO6,N,10,2	
-        DIETENT,N,10,2	
-        CODFORPAG,C,3	TIPFORPAG,C,1								
-         */
-        int i = 0;
-
-        fields[i] = new DBFField();
-        fields[i].setName("TIPREG");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(1);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("DOCFEC");
-        fields[i].setDataType(DBFField.FIELD_TYPE_D);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("DOCSER");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(10);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("DOCNUM");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(6);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("CODTIP");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("CODMOD");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("CODTER");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(5);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("CTACON");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(12);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
-
-        fields[++i] = new DBFField();
-        fields[i].setName("BASEBAS");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(10);
-//        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("IMPTBAS");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(10);
-//        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("PORNOR");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(6);
-        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("RECBAS");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(10);
-        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("PORREC");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(6);
-        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("PORTES");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(11);
-        fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
-
-        fields[++i] = new DBFField();
-        fields[i].setName("PORFIN");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(6);
-        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("RFDPP");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(11);
-        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("DESHOR");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(11);
-        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("DESKM");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(11);
-        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("TOTFAC");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(14);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
-
-        fields[++i] = new DBFField();
-        fields[i].setName("FECVTO1");
-        fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("IMPVTO1");
-        //fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        // Es numerico pero para insertar valor "XXX,YY" 
-        //hay que meterlo como string y despues cambiarlo en dbfmanager -> Structura
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(10);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("FECVTO2");
-        fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("IMPVTO2");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(10);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("FECVTO3");
-        fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("IMPVTO3");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(10);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("FECVTO4");
-        fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("IMPVTO4");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(10);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("FECVTO5");
-        fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("IMPVTO5");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(10);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("FECVTO6");
-        fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("IMPVTO6");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(10);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("DIETENT");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
-        fields[i].setFieldLength(10);
-        fields[i].setDecimalCount(2);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("CODFORPAG");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(3);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        fields[++i] = new DBFField();
-        fields[i].setName("TIPFORPAG");
-        fields[i].setDataType(DBFField.FIELD_TYPE_C);
-        fields[i].setFieldLength(1);
-        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
-
-        logger.log(Level.INFO, "Total columnas en fichero .dbf = {0}", i);
-    }
-
     private static void setDetalle(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
         String sql = getConsulta(fechaDesde, fechaHasta);
         logger.log(Level.INFO, "DETALLE Consulta SQL = {0}", sql);
         ResultSet rs = s.executeQuery(sql);
         // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
-        SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
         String auxFecha = "";
         Object rowData[] = new Object[TOTAL];
         int i, cnt = 0;
         while (rs.next()) {
             i = 0;
-//                System.out.println(dt1.format(rs.getDate(1)) + " " + rs.getString(2) + " " + rs.getString(3)
-//                        + " " + rs.getString("CODMOD") + " " + rs.getDouble("BASEBAS") + " " + rs.getString("IMPTBAS"));
             rowData[i] = "D"; //TIPREG
             auxFecha = dt.format(rs.getDate("DOCFEC"));
             rowData[++i] = dt.parse(auxFecha);
-            rowData[++i] = rs.getString("DOCSER");
-            rowData[++i] = rs.getString("DOCNUM");
+            rowData[++i] = rs.getString("DOCSER").trim();
+            rowData[++i] = rs.getString("DOCNUM").trim();
             rowData[++i] = "IV"; //CODTIP
-            rowData[++i] = rs.getString("CODMOD");
-            rowData[++i] = rs.getString("CODTER");//CODTER
+            rowData[++i] = rs.getString("CODMOD").trim();
+            rowData[++i] = rs.getString("CODTER").trim();
             rowData[++i] = null; //CTACON
-            rowData[++i] = rs.getString("BASEBAS");
-            rowData[++i] = rs.getString("IMPTBAS");
+            rowData[++i] = rs.getString("BASEBAS").trim();
+            rowData[++i] = rs.getString("IMPTBAS").trim();
             rowData[++i] = rs.getDouble("PORNOR");
             rowData[++i] = rs.getDouble("RECBAS");
             rowData[++i] = rs.getDouble("PORREC");
@@ -426,8 +178,8 @@ public class DBFWriterTest {
             rowData[++i] = null; //rs.getString("FECVTO6");
             rowData[++i] = null; //rs.getString("IMPVTO6");
             rowData[++i] = rs.getDouble("DIETENT");
-            rowData[++i] = rs.getString("CODFORPAG");
-            rowData[++i] = rs.getString("TIPFORPAG");
+            rowData[++i] = rs.getString("CODFORPAG").trim();
+            rowData[++i] = rs.getString("TIPFORPAG").trim();
 
             writer.addRecord(rowData);
             rowData = new Object[TOTAL];
@@ -442,25 +194,25 @@ public class DBFWriterTest {
 
         logger.log(Level.INFO, "CABECERA Consulta SQL = {0}", sql);
         ResultSet rs = s.executeQuery(sql);
-        SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
-        String auxFecha, auxTOTFAC = "";
+
+        String auxFechaFactura, auxTOTFAC = "";
         // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
         Object rowData[] = new Object[TOTAL];
 
-        int i, cnt = 0;
+        Integer i, k, cnt = 0;
         while (rs.next()) {
             i = 0;
             rowData[i] = "C"; //TIPREG
-            auxFecha = dt.format(rs.getDate("DOCFEC"));
-            rowData[++i] = dt.parse(auxFecha);
-            rowData[++i] = rs.getString("DOCSER");
-            rowData[++i] = rs.getString("DOCNUM");
+            auxFechaFactura = dt.format(rs.getDate("DOCFEC"));
+            rowData[++i] = dt.parse(auxFechaFactura);
+            rowData[++i] = rs.getString("DOCSER").trim();
+            rowData[++i] = rs.getString("DOCNUM").trim();
             rowData[++i] = "IV"; //CODTIP
-            rowData[++i] = rs.getString("CODMOD");
-            rowData[++i] = rs.getString("CODTER"); //CODTER
-            rowData[++i] = rs.getString("CTACON");
-            rowData[++i] = rs.getString("BASEBAS");
-            rowData[++i] = rs.getString("IMPTBAS");
+            rowData[++i] = rs.getString("CODMOD").trim();
+            rowData[++i] = rs.getString("CODTER").trim();
+            rowData[++i] = rs.getString("CTACON").trim();
+            rowData[++i] = rs.getString("BASEBAS").trim();
+            rowData[++i] = rs.getString("IMPTBAS").trim();
             rowData[++i] = null; //PORNOR vacio
             rowData[++i] = rs.getDouble("RECBAS");
             rowData[++i] = null; //PORREC vacio
@@ -469,23 +221,26 @@ public class DBFWriterTest {
             rowData[++i] = null; //RFDPP vacio
             rowData[++i] = null; //DESHOR vacio
             rowData[++i] = rs.getDouble("DESKM");
-            auxTOTFAC = rs.getString("TOTFAC");
+            auxTOTFAC = rs.getString("TOTFAC").trim();
             rowData[++i] = auxTOTFAC;
-            rowData[++i] = dt.parse(getFECVTO(dt.parse(auxFecha), rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento")));
-            rowData[++i] = getIMPVTO(auxTOTFAC, rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento"));
-            rowData[++i] = null; //rs.getString("FECVTO2");
-            rowData[++i] = null; //rs.getInt("IMPVTO2");
-            rowData[++i] = null; //rs.getString("FECVTO3");
-            rowData[++i] = null; //rs.getInt("IMPVTO3");
-            rowData[++i] = null; //rs.getString("FECVTO4");
-            rowData[++i] = null; //rs.getInt("IMPVTO4");
-            rowData[++i] = null; //rs.getString("FECVTO5");
-            rowData[++i] = null; //rs.getInt("IMPVTO5");
-            rowData[++i] = null; //rs.getString("FECVTO6");
-            rowData[++i] = null; //rs.getInt("IMPVTO6");
-            rowData[++i] = null; //rs.getDouble("DIETENT");
-            rowData[++i] = rs.getString("CODFORPAG");
-            rowData[++i] = rs.getString("TIPFORPAG");
+            // FECHA E IMPUESTOS VENCIMIENTOS
+            k = setFEC_IMPVTO(rowData, i, auxFechaFactura, auxTOTFAC, rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento"));
+//            rowData[++i] = dt.parse(getFECVTO(dt.parse(auxFecha), rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento")));
+//            rowData[++i] = getIMPVTO(auxTOTFAC, rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento"));
+//            rowData[++i] = null; //rs.getString("FECVTO2");
+//            rowData[++i] = null; //rs.getInt("IMPVTO2");
+//            rowData[++i] = null; //rs.getString("FECVTO3");
+//            rowData[++i] = null; //rs.getInt("IMPVTO3");
+//            rowData[++i] = null; //rs.getString("FECVTO4");
+//            rowData[++i] = null; //rs.getInt("IMPVTO4");
+//            rowData[++i] = null; //rs.getString("FECVTO5");
+//            rowData[++i] = null; //rs.getInt("IMPVTO5");
+//            rowData[++i] = null; //rs.getString("FECVTO6");
+//            rowData[++i] = null; //rs.getInt("IMPVTO6");
+
+            rowData[++k] = null; //rs.getDouble("DIETENT");
+            rowData[++k] = rs.getString("CODFORPAG").trim();
+            rowData[++k] = rs.getString("TIPFORPAG").trim();
 
             writer.addRecord(rowData);
             rowData = new Object[TOTAL];
@@ -497,14 +252,14 @@ public class DBFWriterTest {
 
     private static String getConsulta(String fechaDesde, String fechaHasta) {
         return "SELECT DISTINCT "
-                + "fc.fecha DOCFEC, " //1
-                + "fc.serie DOCSER, " //2
-                + "LPAD(fc.numero ,6,'0') DOCNUM, " //3
+                + "fc.fecha DOCFEC, "
+                + "fc.serie DOCSER, "
+                + "LPAD(fc.numero ,6,'0') DOCNUM, "
                 + "cc.codigo CTACON, "
                 + "c.codcli CODTER, "
-                + "replace(TRUNCATE(fc.baseimponible, 2),'.',',') BASEBAS, " //4
-                + "replace(TRUNCATE(fc.impuestos, 2),'.',',') IMPTBAS, " // 5
-                + "ac.tiposiva_id CODMOD, " //6
+                + "replace(TRUNCATE(fc.baseimponible, 2),'.',',') BASEBAS, "
+                + "replace(TRUNCATE(fc.impuestos, 2),'.',',') IMPTBAS, "
+                + "ac.tiposiva_id CODMOD, "
                 + "replace(TRUNCATE(fc.total, 2),'.',',') AS TOTFAC, "
                 + " '' PORNOR, '' RECBAS, '' PORREC, '' PORTES, '' PORFIN, '' RFDPP, '' DESHOR, "
                 + " '' DESKM, '' TOTFAC, "
@@ -525,17 +280,15 @@ public class DBFWriterTest {
                 + " ORDER BY fc.numero DESC;";
     }
 
-    private static String getFieldDataType(byte dataType) throws UnsupportedEncodingException {
-        byte[] byteArray = new byte[]{dataType};
-        return new String(byteArray, "UTF-8");
-    }
-
     private static String getFECVTO(Date auxFecha, String numeroVencimiento, String diaEntreVencimiento) {
-        SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
         Date fecha = null;
         switch (Integer.parseInt(numeroVencimiento)) {
             case 1:
-                fecha = auxFecha;
+                if (diaEntreVencimiento != null && diaEntreVencimiento.equalsIgnoreCase("1")) {
+                    fecha = auxFecha;
+                } else if (diaEntreVencimiento != null && diaEntreVencimiento.equalsIgnoreCase("2")) {
+                    fecha = auxFecha;
+                }
                 break;
             case 2:
                 break;
@@ -562,4 +315,52 @@ public class DBFWriterTest {
         }
         return impvto;
     }
+
+    private static Integer setFEC_IMPVTO(Object[] rowData, Integer i, String auxFecha, String auxTOTFAC, String numeroVencimiento, String diaEntreVencimiento) throws ParseException {
+        if (numeroVencimiento != null) {
+            switch (Integer.parseInt(numeroVencimiento)) {
+                case 1:
+                    rowData[++i] = dt.parse(auxFecha);
+                    rowData[++i] = auxTOTFAC;
+                    rowData[++i] = null; //rs.getString("FECVTO2");
+                    rowData[++i] = null; //rs.getInt("IMPVTO2");
+                    rowData[++i] = null; //rs.getString("FECVTO3");
+                    rowData[++i] = null; //rs.getInt("IMPVTO3");
+                    rowData[++i] = null; //rs.getString("FECVTO4");
+                    rowData[++i] = null; //rs.getInt("IMPVTO4");
+                    rowData[++i] = null; //rs.getString("FECVTO5");
+                    rowData[++i] = null; //rs.getInt("IMPVTO5");
+                    rowData[++i] = null; //rs.getString("FECVTO6");
+                    rowData[++i] = null; //rs.getInt("IMPVTO6");
+                    break;
+                case 2:
+                    rowData[++i] = dt.parse(auxFecha);
+                    float auxTOTFAC2 = Float.parseFloat(auxTOTFAC);
+                    rowData[++i] = auxTOTFAC2/2;
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(dt.parse(auxFecha)); // Configuramos la fecha que se recibe
+                    calendar.add(Calendar.DAY_OF_YEAR, Integer.parseInt(diaEntreVencimiento));
+                    
+                    calendar.getTime();
+                    
+                    rowData[++i] = null; 
+                    rowData[++i] = String.valueOf(auxTOTFAC2/2);
+                    rowData[++i] = null; //rs.getString("FECVTO3");
+                    rowData[++i] = null; //rs.getInt("IMPVTO3");
+                    rowData[++i] = null; //rs.getString("FECVTO4");
+                    rowData[++i] = null; //rs.getInt("IMPVTO4");
+                    rowData[++i] = null; //rs.getString("FECVTO5");
+                    rowData[++i] = null; //rs.getInt("IMPVTO5");
+                    rowData[++i] = null; //rs.getString("FECVTO6");
+                    rowData[++i] = null; //rs.getInt("IMPVTO6");
+                    break;
+                case 3:
+                    break;
+                default:
+                    break;
+            }
+        } // IF
+        return i;
+    }
+
 }
