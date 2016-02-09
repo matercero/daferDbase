@@ -99,6 +99,7 @@ public class Principal extends JPanel {
                             int result = DBFWriterTest.WriterDbf(frame, args, logger);
                             if (result == 0) {
                                 JOptionPane.showMessageDialog(frame, "Fichero creado correctamente.");
+                                JOptionPane.showMessageDialog(frame, "NOTA: Actualizar campos !! ");
                                 logger.info("Proceso finalizado correctamente.");
                             } else {
                                 logger.warning("ERROR: se ha producido un error.");
@@ -152,7 +153,7 @@ public class Principal extends JPanel {
             // This block configure the logger with handler and formatter  
             fh = new FileHandler(prop.getProperty("pathLog"));
             logger.addHandler(fh);
-            logger.info("Path log: " + prop.getProperty("pathLog"));
+            logger.log(Level.INFO, "Path log: {0}", prop.getProperty("pathLog"));
             SimpleFormatter formatter = new SimpleFormatter();
             fh.setFormatter(formatter);
 

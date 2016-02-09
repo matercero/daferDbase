@@ -52,7 +52,7 @@ public class DBFWriterTest {
      * @throws SQLException
      * @throws es.dafer.tercero.ma.utils.JDBFException
      */
-    public static int WriterDbf(JFrame frame,  Date args[], Logger logger)
+    public static int WriterDbf(JFrame frame, Date args[], Logger logger)
             throws DBFException, IOException, SQLException, JDBFException {
 
         int resultado = 0;
@@ -290,7 +290,10 @@ public class DBFWriterTest {
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO1");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
+        //fields[i].setDataType(DBFField.FIELD_TYPE_N);
+        // Es numerico pero para insertar valor "XXX,YY" 
+        //hay que meterlo como string y despues cambiarlo en dbfmanager -> Structura
+        fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(10);
         logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
@@ -440,9 +443,10 @@ public class DBFWriterTest {
         logger.log(Level.INFO, "CABECERA Consulta SQL = {0}", sql);
         ResultSet rs = s.executeQuery(sql);
         SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
-        String auxFecha = "";
+        String auxFecha, auxTOTFAC = "";
         // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
         Object rowData[] = new Object[TOTAL];
+
         int i, cnt = 0;
         while (rs.next()) {
             i = 0;
@@ -465,9 +469,10 @@ public class DBFWriterTest {
             rowData[++i] = null; //RFDPP vacio
             rowData[++i] = null; //DESHOR vacio
             rowData[++i] = rs.getDouble("DESKM");
-            rowData[++i] = rs.getString("TOTFAC");
-            rowData[++i] = null; //rs.getString("FECVTO1");
-            rowData[++i] = null; //rs.getInt("IMPVTO1");
+            auxTOTFAC = rs.getString("TOTFAC");
+            rowData[++i] = auxTOTFAC;
+            rowData[++i] = dt.parse(getFECVTO(dt.parse(auxFecha), rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento")));
+            rowData[++i] = getIMPVTO(auxTOTFAC, rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento"));
             rowData[++i] = null; //rs.getString("FECVTO2");
             rowData[++i] = null; //rs.getInt("IMPVTO2");
             rowData[++i] = null; //rs.getString("FECVTO3");
@@ -502,18 +507,20 @@ public class DBFWriterTest {
                 + "ac.tiposiva_id CODMOD, " //6
                 + "replace(TRUNCATE(fc.total, 2),'.',',') AS TOTFAC, "
                 + " '' PORNOR, '' RECBAS, '' PORREC, '' PORTES, '' PORFIN, '' RFDPP, '' DESHOR, "
-                + " '' DESKM, '' TOTFAC, '' FECVTO1, '' IMPVTO1, '' FECVTO2, '' IMPVTO2, '' FECVTO3, '' IMPVTO3, "
-                + " '' FECVTO4, '' IMPVTO4, '' FECVTO5, '' IMPVTO5, '' FECVTO6, '' IMPVTO6, "
-                + " '' DIETENT, '' CODFORPAG, '' TIPFORPAG "
+                + " '' DESKM, '' TOTFAC, "
+                + " '' DIETENT, '' CODFORPAG, '' TIPFORPAG,"
+                + " fp.numero_vencimientos, fp.dias_entre_vencimiento "
                 + "FROM dafer2.facturas_clientes fc"
                 + "   , dafer2.estadosfacturasclientes efc"
                 + "   , dafer2.albaranesclientes ac"
                 + "   , dafer2.cuentascontables cc"
-                + "   , dafer2.clientes c "
+                + "   , dafer2.clientes c"
+                + "   , dafer2.formapagos fp "
                 + "WHERE efc.id = 1"
                 + " AND ac.facturas_cliente_id = fc.id "
                 + " AND c.id = fc.cliente_id "
                 + " AND c.cuentascontable_id = cc.id "
+                + " AND fp.cliente_id = c.id "
                 + " AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
                 + " ORDER BY fc.numero DESC;";
     }
@@ -521,5 +528,38 @@ public class DBFWriterTest {
     private static String getFieldDataType(byte dataType) throws UnsupportedEncodingException {
         byte[] byteArray = new byte[]{dataType};
         return new String(byteArray, "UTF-8");
+    }
+
+    private static String getFECVTO(Date auxFecha, String numeroVencimiento, String diaEntreVencimiento) {
+        SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
+        Date fecha = null;
+        switch (Integer.parseInt(numeroVencimiento)) {
+            case 1:
+                fecha = auxFecha;
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            default:
+                break;
+        }
+        return dt.format(fecha);
+    }
+
+    private static String getIMPVTO(String auxTOTFAC, String numeroVencimiento, String diaEntreVencimiento) {
+        String impvto = null;
+        switch (Integer.parseInt(numeroVencimiento)) {
+            case 1:
+                impvto = auxTOTFAC;
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            default:
+                break;
+        }
+        return impvto;
     }
 }
