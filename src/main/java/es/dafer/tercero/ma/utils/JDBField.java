@@ -333,7 +333,7 @@ public class JDBField {
         fields[i].setName("CTACON");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(12);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("BASEBAS");
@@ -375,7 +375,7 @@ public class JDBField {
         fields[i].setDataType(DBFField.FIELD_TYPE_N);
         fields[i].setFieldLength(11);
         fields[i].setDecimalCount(2);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("PORFIN");
@@ -409,7 +409,7 @@ public class JDBField {
         fields[i].setName("TOTFAC");
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(14);
-        logger.info("Campo " + i + "-" + fields[i].getName() + " - DataType : " + getFieldDataType(fields[i].getDataType()));
+        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO1");
@@ -432,26 +432,26 @@ public class JDBField {
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO2");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
+        // Misma razon que IMPVTO1
+        fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(10);
         logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO3");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
         logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("IMPVTO3");
-        fields[i].setDataType(DBFField.FIELD_TYPE_N);
+        // Misma razon que IMPVTO1
+        fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(10);
         logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO4");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
         logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
@@ -463,7 +463,6 @@ public class JDBField {
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO5");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
         logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();
@@ -475,7 +474,6 @@ public class JDBField {
         fields[++i] = new DBFField();
         fields[i].setName("FECVTO6");
         fields[i].setDataType(DBFField.FIELD_TYPE_D);
-//        fields[i].setFieldLength(8);
         logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         fields[++i] = new DBFField();

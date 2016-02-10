@@ -40,9 +40,10 @@ import javax.swing.SwingUtilities;
  */
 public class Principal extends JPanel {
 
-    static Logger logger = Logger.getLogger("MyLog");
+    static Logger logger = Logger.getLogger("daferDbase Principal");
     static FileHandler fh;
 
+    private static final DateFormat DF = new SimpleDateFormat("dd/MM/yyyy");
     static JFrame frame = new JFrame("Generación TENCOM Dafer.");
 
     JButton jbt1 = new JButton("Crear fichero DBF");
@@ -50,8 +51,7 @@ public class Principal extends JPanel {
     JFormattedTextField inputD, inputH;
     Box box = Box.createVerticalBox();
 
-    private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-
+    // UPDATE LOS REGITROS CONTABILIZADOS
 //    JButton jbt3 = new JButton("Button3");
 //    JButton jbt4 = new JButton("Button4");
     public Principal() {
@@ -60,13 +60,13 @@ public class Principal extends JPanel {
 
         labelD = new JLabel("Fecha Desde: dd/mm/yyyy");
         //  inputD = new JFormattedTextField(df.format(new Date()));
-        inputD = new JFormattedTextField("01/02/2015");
+        inputD = new JFormattedTextField("31/01/2014");
         inputD.setColumns(10);
 //        inputD.setMaximumSize(new Dimension(10, 0));
 
         labelH = new JLabel("Hasta: ");
         // inputH = new JFormattedTextField(df.format(new Date()));
-        inputH = new JFormattedTextField("05/02/2015");
+        inputH = new JFormattedTextField("31/08/2014");
         inputH.setColumns(10);
 //        inputH.setMaximumSize(new Dimension(10, 0));
 
@@ -84,8 +84,8 @@ public class Principal extends JPanel {
                 Date dateD = new Date();
                 Date dateH = new Date();
                 try {
-                    dateD = df.parse(inputD.getText());
-                    dateH = df.parse(inputH.getText());
+                    dateD = DF.parse(inputD.getText());
+                    dateH = DF.parse(inputH.getText());
 
                 } catch (ParseException ex) {
                     Logger.getLogger(Principal.class
@@ -138,7 +138,7 @@ public class Principal extends JPanel {
 
     public static void createAndShowGui() {
         frame.add(new Principal());
-        frame.setSize(400, 400);
+        frame.setSize(500, 500);
         frame.setLayout(new FlowLayout());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationByPlatform(true);
@@ -159,8 +159,10 @@ public class Principal extends JPanel {
 
         } catch (SecurityException e) {
             e.printStackTrace();
+            logger.log(Level.SEVERE, "Main: {0}", e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
+            logger.log(Level.SEVERE, "Main: {0}", e.getMessage());
         }
 
         logger.info("Iniciando proceso....");
@@ -179,12 +181,14 @@ public class Principal extends JPanel {
             prop.load(input);
         } catch (IOException ex) {
             ex.printStackTrace();
+            logger.log(Level.SEVERE, "getProperties IOException: {0}", ex.getMessage());
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    logger.log(Level.SEVERE, "getProperties IOException: {0}", e.getMessage());
                 }
             }
         }

@@ -2,6 +2,7 @@ package es.dafer.tercero.ma.main;
 
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
+import com.linuxense.javadbf.DBFReader;
 import com.linuxense.javadbf.DBFWriter;
 import es.dafer.tercero.ma.db.Connect;
 import static es.dafer.tercero.ma.main.Principal.logger;
@@ -85,6 +86,7 @@ public class DBFWriterTest {
             File fileDbf = new File(nameFile);
             logger.log(Level.INFO, "Fichero creado: {0}", nameFile);
 
+//            readDbf(fileDbf);
             FileOutputStream fos = new FileOutputStream(fileDbf);
             writer.write(fos);
             fos.close();
@@ -280,87 +282,158 @@ public class DBFWriterTest {
                 + " ORDER BY fc.numero DESC;";
     }
 
-    private static String getFECVTO(Date auxFecha, String numeroVencimiento, String diaEntreVencimiento) {
-        Date fecha = null;
-        switch (Integer.parseInt(numeroVencimiento)) {
-            case 1:
-                if (diaEntreVencimiento != null && diaEntreVencimiento.equalsIgnoreCase("1")) {
-                    fecha = auxFecha;
-                } else if (diaEntreVencimiento != null && diaEntreVencimiento.equalsIgnoreCase("2")) {
-                    fecha = auxFecha;
-                }
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-                break;
-        }
-        return dt.format(fecha);
-    }
-
-    private static String getIMPVTO(String auxTOTFAC, String numeroVencimiento, String diaEntreVencimiento) {
-        String impvto = null;
-        switch (Integer.parseInt(numeroVencimiento)) {
-            case 1:
-                impvto = auxTOTFAC;
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-                break;
-        }
-        return impvto;
-    }
-
+    /**
+     *
+     * @param rowData
+     * @param i
+     * @param auxFecha
+     * @param auxTOTFAC
+     * @param numeroVencimiento
+     * @param diaEntreVencimiento
+     * @return
+     * @throws ParseException
+     */
     private static Integer setFEC_IMPVTO(Object[] rowData, Integer i, String auxFecha, String auxTOTFAC, String numeroVencimiento, String diaEntreVencimiento) throws ParseException {
-        if (numeroVencimiento != null) {
-            switch (Integer.parseInt(numeroVencimiento)) {
-                case 1:
+        int diasVencimiento = 0;
+        float tempTOTFAC;
+        if (numeroVencimiento == null) {
+            numeroVencimiento = "1";
+        }
+        if (diaEntreVencimiento != null) {
+            diasVencimiento = Integer.parseInt(diaEntreVencimiento);
+        }
+        logger.log(Level.INFO, "numeroVencimiento = {0} | diasVencimiento = {1}", new Object[]{numeroVencimiento, diasVencimiento});
+        switch (Integer.parseInt(numeroVencimiento)) {
+            case 1:
+                logger.log(Level.INFO, "FECVTO1 = {0} | IMPVTO1 = {1}", new Object[]{auxFecha, auxTOTFAC});
+                if (diasVencimiento <= 1) {
                     rowData[++i] = dt.parse(auxFecha);
                     rowData[++i] = auxTOTFAC;
-                    rowData[++i] = null; //rs.getString("FECVTO2");
-                    rowData[++i] = null; //rs.getInt("IMPVTO2");
-                    rowData[++i] = null; //rs.getString("FECVTO3");
-                    rowData[++i] = null; //rs.getInt("IMPVTO3");
-                    rowData[++i] = null; //rs.getString("FECVTO4");
-                    rowData[++i] = null; //rs.getInt("IMPVTO4");
-                    rowData[++i] = null; //rs.getString("FECVTO5");
-                    rowData[++i] = null; //rs.getInt("IMPVTO5");
-                    rowData[++i] = null; //rs.getString("FECVTO6");
-                    rowData[++i] = null; //rs.getInt("IMPVTO6");
-                    break;
-                case 2:
-                    rowData[++i] = dt.parse(auxFecha);
-                    float auxTOTFAC2 = Float.parseFloat(auxTOTFAC);
-                    rowData[++i] = auxTOTFAC2/2;
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(dt.parse(auxFecha)); // Configuramos la fecha que se recibe
-                    calendar.add(Calendar.DAY_OF_YEAR, Integer.parseInt(diaEntreVencimiento));
-                    
-                    calendar.getTime();
-                    
-                    rowData[++i] = null; 
-                    rowData[++i] = String.valueOf(auxTOTFAC2/2);
-                    rowData[++i] = null; //rs.getString("FECVTO3");
-                    rowData[++i] = null; //rs.getInt("IMPVTO3");
-                    rowData[++i] = null; //rs.getString("FECVTO4");
-                    rowData[++i] = null; //rs.getInt("IMPVTO4");
-                    rowData[++i] = null; //rs.getString("FECVTO5");
-                    rowData[++i] = null; //rs.getInt("IMPVTO5");
-                    rowData[++i] = null; //rs.getString("FECVTO6");
-                    rowData[++i] = null; //rs.getInt("IMPVTO6");
-                    break;
-                case 3:
-                    break;
-                default:
-                    break;
-            }
-        } // IF
+                } else {
+                    rowData[++i] = sumarDias(dt.parse(auxFecha), diasVencimiento);
+                    rowData[++i] = auxTOTFAC;
+                }
+                rowData[++i] = null; //rs.getString("FECVTO2");
+                rowData[++i] = null; //rs.getInt("IMPVTO2");
+                rowData[++i] = null; //rs.getString("FECVTO3");
+                rowData[++i] = null; //rs.getInt("IMPVTO3");
+                rowData[++i] = null; //rs.getString("FECVTO4");
+                rowData[++i] = null; //rs.getInt("IMPVTO4");
+                rowData[++i] = null; //rs.getString("FECVTO5");
+                rowData[++i] = null; //rs.getInt("IMPVTO5");
+                rowData[++i] = null; //rs.getString("FECVTO6");
+                rowData[++i] = null; //rs.getInt("IMPVTO6");
+                break;
+            case 2:
+                // Vencimiento 1
+                rowData[++i] = dt.parse(auxFecha);
+                tempTOTFAC = Float.parseFloat(auxTOTFAC.replace(',', '.'));
+                rowData[++i] = String.valueOf(tempTOTFAC / 2).replace('.', ',');
+
+                // Vencimiento 2
+                rowData[++i] = sumarDias(dt.parse(auxFecha), diasVencimiento);
+                rowData[++i] = String.valueOf(tempTOTFAC / 2).replace('.', ',');
+
+                rowData[++i] = null; //rs.getString("FECVTO3");
+                rowData[++i] = null; //rs.getInt("IMPVTO3");
+                rowData[++i] = null; //rs.getString("FECVTO4");
+                rowData[++i] = null; //rs.getInt("IMPVTO4");
+                rowData[++i] = null; //rs.getString("FECVTO5");
+                rowData[++i] = null; //rs.getInt("IMPVTO5");
+                rowData[++i] = null; //rs.getString("FECVTO6");
+                rowData[++i] = null; //rs.getInt("IMPVTO6");
+                break;
+            case 3:
+                // Vencimiento 1
+                rowData[++i] = dt.parse(auxFecha);
+                tempTOTFAC = Float.parseFloat(auxTOTFAC.replace(',', '.'));
+                rowData[++i] = String.valueOf(tempTOTFAC / 3).replace('.', ',');
+
+                // Vencimiento 2
+                Date auxFecVto = sumarDias(dt.parse(auxFecha), diasVencimiento);
+                rowData[++i] = auxFecVto;
+                rowData[++i] = String.valueOf(tempTOTFAC / 3).replace('.', ',');
+
+                // Vencimiento 3
+                rowData[++i] = sumarDias(auxFecVto, diasVencimiento);
+                rowData[++i] = String.valueOf(tempTOTFAC / 3).replace('.', ',');
+
+                rowData[++i] = null; //rs.getString("FECVTO4");
+                rowData[++i] = null; //rs.getInt("IMPVTO4");
+                rowData[++i] = null; //rs.getString("FECVTO5");
+                rowData[++i] = null; //rs.getInt("IMPVTO5");
+                rowData[++i] = null; //rs.getString("FECVTO6");
+                rowData[++i] = null; //rs.getInt("IMPVTO6");
+                break;
+            default:
+                break;
+        }
         return i;
     }
 
+    /**
+     *
+     * @param fecha
+     * @param dias a sumar a la fecha
+     * @return
+     * @throws ParseException
+     */
+    private static Date sumarDias(Date fecha, int dias) throws ParseException {
+        Calendar c = Calendar.getInstance();
+        c.setTime(fecha);
+        c.add(Calendar.DATE, dias);
+        return dt.parse(dt.format(c.getTime()));
+    }
+
 }
+
+//TODO.- Una vez creado el .dbf intentar los typedata de BASEBAS
+//    private static void readDbf(File fileDbf) {
+//        try {
+//
+//            // create a DBFReader object
+//            //
+//            InputStream inputStream = new FileInputStream(fileDbf); // take dbf file as program argument
+//            DBFReader reader = new DBFReader(inputStream);
+//
+//            // get the field count if you want for some reasons like the following
+//            //
+//            int numberOfFields = reader.getFieldCount();
+//
+//            // use this count to fetch all field information
+//            // if required
+//            //
+//            for (int i = 0; i < numberOfFields; i++) {
+//
+//                DBFField field = reader.getField(i);
+//
+//                // do something with it if you want
+//                // refer the JavaDoc API reference for more details
+//                //
+//                System.out.println(field.getName());
+//                if (field.getName().equalsIgnoreCase("BASEBAS")) {
+//                    field.setDataType(DBFField.FIELD_TYPE_C);
+//                    field.setFieldLength(10);
+//                    field.setDecimalCount(2);
+//                }
+//            }
+//
+//            // Now, lets us start reading the rows
+//            Object[] rowObjects;
+//
+//            while ((rowObjects = reader.nextRecord()) != null) {
+//
+//                for (int i = 0; i < rowObjects.length; i++) {
+//
+//                    System.out.println(rowObjects[i]);
+//                }
+//            }
+//
+//            // By now, we have itereated through all of the rows
+//            inputStream.close();
+//        } catch (DBFException e) {
+//            System.out.println(e.getMessage());
+//        } catch (IOException e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
