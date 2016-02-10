@@ -253,7 +253,7 @@ public class DBFWriterTest {
     }
 
     private static String getConsulta(String fechaDesde, String fechaHasta) {
-        return "SELECT DISTINCT "
+        return "SELECT DISTINCT fc.id ID_FACTURACLIENTE, "
                 + "fc.fecha DOCFEC, "
                 + "fc.serie DOCSER, "
                 + "LPAD(fc.numero ,6,'0') DOCNUM, "
@@ -296,16 +296,13 @@ public class DBFWriterTest {
     private static Integer setFEC_IMPVTO(Object[] rowData, Integer i, String auxFecha, String auxTOTFAC, String numeroVencimiento, String diaEntreVencimiento) throws ParseException {
         int diasVencimiento = 0;
         float tempTOTFAC;
-        if (numeroVencimiento == null) {
-            numeroVencimiento = "1";
-        }
-        if (diaEntreVencimiento != null) {
-            diasVencimiento = Integer.parseInt(diaEntreVencimiento);
-        }
+        numeroVencimiento =(numeroVencimiento == null?"1":numeroVencimiento);
+        diasVencimiento = (diaEntreVencimiento == null?0:Integer.parseInt(diaEntreVencimiento));
+        
         logger.log(Level.INFO, "numeroVencimiento = {0} | diasVencimiento = {1}", new Object[]{numeroVencimiento, diasVencimiento});
         switch (Integer.parseInt(numeroVencimiento)) {
             case 1:
-                logger.log(Level.INFO, "FECVTO1 = {0} | IMPVTO1 = {1}", new Object[]{auxFecha, auxTOTFAC});
+//                logger.log(Level.INFO, "FECVTO1 = {0} | IMPVTO1 = {1}", new Object[]{auxFecha, auxTOTFAC});
                 if (diasVencimiento <= 1) {
                     rowData[++i] = dt.parse(auxFecha);
                     rowData[++i] = auxTOTFAC;

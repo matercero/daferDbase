@@ -46,13 +46,14 @@ public class Principal extends JPanel {
     private static final DateFormat DF = new SimpleDateFormat("dd/MM/yyyy");
     static JFrame frame = new JFrame("Generación TENCOM Dafer.");
 
-    JButton jbt1 = new JButton("Crear fichero DBF");
-    JButton jbt2 = new JButton("Cerrar");
     JFormattedTextField inputD, inputH;
     Box box = Box.createVerticalBox();
 
+    JButton jbt1 = new JButton("Crear fichero DBF");
+    JButton jbt2 = new JButton("Cerrar");
     // UPDATE LOS REGITROS CONTABILIZADOS
-//    JButton jbt3 = new JButton("Button3");
+    JButton jbt3 = new JButton("Update estadoFacturaCliente");
+        
 //    JButton jbt4 = new JButton("Button4");
     public Principal() {
 
@@ -124,6 +125,8 @@ public class Principal extends JPanel {
         });
 
 //        box.add(Box.createVerticalStrut(10));
+//        box.add(jbt3, BorderLayout.CENTER);
+
         //BOTON SALIR
         box.add(Box.createVerticalStrut(30));
         box.add(jbt2, BorderLayout.CENTER);
