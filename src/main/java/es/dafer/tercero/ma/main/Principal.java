@@ -1,6 +1,7 @@
 package es.dafer.tercero.ma.main;
 
 import com.linuxense.javadbf.DBFException;
+import es.dafer.tercero.ma.db.UpdateEstadoClientes;
 import static es.dafer.tercero.ma.main.DBFWriterTest.prop;
 import es.dafer.tercero.ma.utils.JDBFException;
 import java.awt.BorderLayout;
@@ -52,8 +53,8 @@ public class Principal extends JPanel {
     JButton jbt1 = new JButton("Crear fichero DBF");
     JButton jbt2 = new JButton("Cerrar");
     // UPDATE LOS REGITROS CONTABILIZADOS
-    JButton jbt3 = new JButton("Update estadoFacturaCliente");
-        
+    final JButton jbt3 = new JButton("Actualizar Estado Facturas Clientes");
+
 //    JButton jbt4 = new JButton("Button4");
     public Principal() {
 
@@ -101,6 +102,7 @@ public class Principal extends JPanel {
                             if (result == 0) {
                                 JOptionPane.showMessageDialog(frame, "Fichero creado correctamente.");
                                 JOptionPane.showMessageDialog(frame, "NOTA: Actualizar campos !! ");
+                                jbt3.setEnabled(true);
                                 logger.info("Proceso finalizado correctamente.");
                             } else {
                                 logger.warning("ERROR: se ha producido un error.");
@@ -124,8 +126,29 @@ public class Principal extends JPanel {
             }
         });
 
-//        box.add(Box.createVerticalStrut(10));
-//        box.add(jbt3, BorderLayout.CENTER);
+        box.add(jbt3, BorderLayout.CENTER);
+        jbt3.setEnabled(false);
+        jbt3.addActionListener(
+                new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                 Object source = e.getSource();
+                  if (source instanceof JButton) {
+                     try {
+                         int result = DBFWriterTest.updateEstado();
+                         if (result == 0) {
+                                JOptionPane.showMessageDialog(frame, "Actualizado Estado "
+                                        + " de Factura Clientes. Correctamente");
+                                jbt3.setEnabled(false);
+                                logger.info("Proceso finalizado correctamente.");
+                            } else {
+                                logger.warning("ERROR: se ha producido un error.");
+                            }
+                     } catch (SQLException ex) {
+                         Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+                     }
+                  }
+            }
+        });
 
         //BOTON SALIR
         box.add(Box.createVerticalStrut(30));

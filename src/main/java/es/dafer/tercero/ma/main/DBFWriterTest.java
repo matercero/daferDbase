@@ -2,7 +2,6 @@ package es.dafer.tercero.ma.main;
 
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
-import com.linuxense.javadbf.DBFReader;
 import com.linuxense.javadbf.DBFWriter;
 import es.dafer.tercero.ma.db.Connect;
 import static es.dafer.tercero.ma.main.Principal.logger;
@@ -19,12 +18,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import org.apache.commons.lang3.StringUtils;
 
 /*
  * To change this template, choose Tools | Templates
@@ -37,15 +39,16 @@ import javax.swing.JFrame;
 public class DBFWriterTest {
 
     private static final int TOTAL = 34;
-    private static String PATH_FILE = "C:\\"; //PARA WINDOWS DAFAULT
+    private static String PATH_FILE = ""; //PARA WINDOWS DAFAULT
+    private static String SQL_UPDATE = "UPDATE  facturas_clientes SET estadosfacturascliente_id = 2 WHERE id IN ";
+    private static List<String> LISTA_ID_UPDATE = new ArrayList<String>();
     static Properties prop = new Properties();
-    static SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
+    static SimpleDateFormat DT = new SimpleDateFormat("yyyyMMdd");
 
     /**
      *
      * @param frame
      * @param args
-     * @param box
      * @param logger
      * @return 0=OK ; -1=ERROR
      * @throws DBFException
@@ -67,9 +70,8 @@ public class DBFWriterTest {
         DBFWriter writer = new DBFWriter();
         writer.setFields(fields);
 
-        SimpleDateFormat dt1 = new SimpleDateFormat("yyyy/MM/dd");
-        String fechaDesde = dt1.format(args[0]);
-        String fechaHasta = dt1.format(args[1]);
+        String fechaDesde = DT.format(args[0]);
+        String fechaHasta = DT.format(args[1]);
         Connection conexion = null;
 
         try {
@@ -81,8 +83,7 @@ public class DBFWriterTest {
             setDetalle(conexion, writer, fechaDesde, fechaHasta);
 
             /*            Creacion de File TENCOM             */
-            SimpleDateFormat dt = new SimpleDateFormat("ddMMyyyy_HHmm");
-            String nameFile = PATH_FILE + dt.format(new Date()) + ".dbf";
+            String nameFile = PATH_FILE + DT.format(new Date()) + ".dbf";
             File fileDbf = new File(nameFile);
             logger.log(Level.INFO, "Fichero creado: {0}", nameFile);
 
@@ -148,8 +149,8 @@ public class DBFWriterTest {
         while (rs.next()) {
             i = 0;
             rowData[i] = "D"; //TIPREG
-            auxFecha = dt.format(rs.getDate("DOCFEC"));
-            rowData[++i] = dt.parse(auxFecha);
+            auxFecha = DT.format(rs.getDate("DOCFEC"));
+            rowData[++i] = DT.parse(auxFecha);
             rowData[++i] = rs.getString("DOCSER").trim();
             rowData[++i] = rs.getString("DOCNUM").trim();
             rowData[++i] = "IV"; //CODTIP
@@ -193,20 +194,22 @@ public class DBFWriterTest {
     private static void setCabecera(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
         String sql = getConsulta(fechaDesde, fechaHasta);
-
-        logger.log(Level.INFO, "CABECERA Consulta SQL = {0}", sql);
         ResultSet rs = s.executeQuery(sql);
 
+        logger.log(Level.INFO, "CABECERA Consulta SQL = {0}", sql);
         String auxFechaFactura, auxTOTFAC = "";
+        List<String> ListIdsFactClientesUpdate = new ArrayList<String>();
+
         // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
         Object rowData[] = new Object[TOTAL];
 
         Integer i, k, cnt = 0;
         while (rs.next()) {
             i = 0;
+            ListIdsFactClientesUpdate.add(rs.getString("ID_FACTURACLIENTE").trim());
             rowData[i] = "C"; //TIPREG
-            auxFechaFactura = dt.format(rs.getDate("DOCFEC"));
-            rowData[++i] = dt.parse(auxFechaFactura);
+            auxFechaFactura = DT.format(rs.getDate("DOCFEC"));
+            rowData[++i] = DT.parse(auxFechaFactura);
             rowData[++i] = rs.getString("DOCSER").trim();
             rowData[++i] = rs.getString("DOCNUM").trim();
             rowData[++i] = "IV"; //CODTIP
@@ -227,18 +230,6 @@ public class DBFWriterTest {
             rowData[++i] = auxTOTFAC;
             // FECHA E IMPUESTOS VENCIMIENTOS
             k = setFEC_IMPVTO(rowData, i, auxFechaFactura, auxTOTFAC, rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento"));
-//            rowData[++i] = dt.parse(getFECVTO(dt.parse(auxFecha), rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento")));
-//            rowData[++i] = getIMPVTO(auxTOTFAC, rs.getString("numero_vencimientos"), rs.getString("dias_entre_vencimiento"));
-//            rowData[++i] = null; //rs.getString("FECVTO2");
-//            rowData[++i] = null; //rs.getInt("IMPVTO2");
-//            rowData[++i] = null; //rs.getString("FECVTO3");
-//            rowData[++i] = null; //rs.getInt("IMPVTO3");
-//            rowData[++i] = null; //rs.getString("FECVTO4");
-//            rowData[++i] = null; //rs.getInt("IMPVTO4");
-//            rowData[++i] = null; //rs.getString("FECVTO5");
-//            rowData[++i] = null; //rs.getInt("IMPVTO5");
-//            rowData[++i] = null; //rs.getString("FECVTO6");
-//            rowData[++i] = null; //rs.getInt("IMPVTO6");
 
             rowData[++k] = null; //rs.getDouble("DIETENT");
             rowData[++k] = rs.getString("CODFORPAG").trim();
@@ -248,8 +239,8 @@ public class DBFWriterTest {
             rowData = new Object[TOTAL];
             cnt++;
         }
+        setLISTA_ID_UPDATE(ListIdsFactClientesUpdate);
         logger.log(Level.INFO, "CABECERA Total registros = {0}", cnt);
-
     }
 
     private static String getConsulta(String fechaDesde, String fechaHasta) {
@@ -280,6 +271,7 @@ public class DBFWriterTest {
                 + " AND fp.cliente_id = c.id "
                 + " AND DATE(fc.fecha) BETWEEN '" + fechaDesde + "' AND '" + fechaHasta + "'"
                 + " ORDER BY fc.numero DESC;";
+//                + " LIMIT 0 , 1000;";
     }
 
     /**
@@ -296,18 +288,18 @@ public class DBFWriterTest {
     private static Integer setFEC_IMPVTO(Object[] rowData, Integer i, String auxFecha, String auxTOTFAC, String numeroVencimiento, String diaEntreVencimiento) throws ParseException {
         int diasVencimiento = 0;
         float tempTOTFAC;
-        numeroVencimiento =(numeroVencimiento == null?"1":numeroVencimiento);
-        diasVencimiento = (diaEntreVencimiento == null?0:Integer.parseInt(diaEntreVencimiento));
-        
-        logger.log(Level.INFO, "numeroVencimiento = {0} | diasVencimiento = {1}", new Object[]{numeroVencimiento, diasVencimiento});
+        numeroVencimiento = (numeroVencimiento == null ? "1" : numeroVencimiento);
+        diasVencimiento = (diaEntreVencimiento == null ? 0 : Integer.parseInt(diaEntreVencimiento));
+
+//        logger.log(Level.INFO, "numeroVencimiento = {0} | diasVencimiento = {1}", new Object[]{numeroVencimiento, diasVencimiento});
         switch (Integer.parseInt(numeroVencimiento)) {
             case 1:
 //                logger.log(Level.INFO, "FECVTO1 = {0} | IMPVTO1 = {1}", new Object[]{auxFecha, auxTOTFAC});
                 if (diasVencimiento <= 1) {
-                    rowData[++i] = dt.parse(auxFecha);
+                    rowData[++i] = DT.parse(auxFecha);
                     rowData[++i] = auxTOTFAC;
                 } else {
-                    rowData[++i] = sumarDias(dt.parse(auxFecha), diasVencimiento);
+                    rowData[++i] = sumarDias(DT.parse(auxFecha), diasVencimiento);
                     rowData[++i] = auxTOTFAC;
                 }
                 rowData[++i] = null; //rs.getString("FECVTO2");
@@ -323,12 +315,12 @@ public class DBFWriterTest {
                 break;
             case 2:
                 // Vencimiento 1
-                rowData[++i] = dt.parse(auxFecha);
+                rowData[++i] = DT.parse(auxFecha);
                 tempTOTFAC = Float.parseFloat(auxTOTFAC.replace(',', '.'));
                 rowData[++i] = String.valueOf(tempTOTFAC / 2).replace('.', ',');
 
                 // Vencimiento 2
-                rowData[++i] = sumarDias(dt.parse(auxFecha), diasVencimiento);
+                rowData[++i] = sumarDias(DT.parse(auxFecha), diasVencimiento);
                 rowData[++i] = String.valueOf(tempTOTFAC / 2).replace('.', ',');
 
                 rowData[++i] = null; //rs.getString("FECVTO3");
@@ -342,12 +334,12 @@ public class DBFWriterTest {
                 break;
             case 3:
                 // Vencimiento 1
-                rowData[++i] = dt.parse(auxFecha);
+                rowData[++i] = DT.parse(auxFecha);
                 tempTOTFAC = Float.parseFloat(auxTOTFAC.replace(',', '.'));
                 rowData[++i] = String.valueOf(tempTOTFAC / 3).replace('.', ',');
 
                 // Vencimiento 2
-                Date auxFecVto = sumarDias(dt.parse(auxFecha), diasVencimiento);
+                Date auxFecVto = sumarDias(DT.parse(auxFecha), diasVencimiento);
                 rowData[++i] = auxFecVto;
                 rowData[++i] = String.valueOf(tempTOTFAC / 3).replace('.', ',');
 
@@ -379,10 +371,64 @@ public class DBFWriterTest {
         Calendar c = Calendar.getInstance();
         c.setTime(fecha);
         c.add(Calendar.DATE, dias);
-        return dt.parse(dt.format(c.getTime()));
+        return DT.parse(DT.format(c.getTime()));
     }
 
-}
+    /**
+     * @return the SQL_UPDATE
+     */
+    public static String getSQL_UPDATE() {
+        return SQL_UPDATE;
+    }
+
+    /**
+     * @param aSQL_UPDATE the SQL_UPDATE to set
+     */
+    public static void setSQL_UPDATE(String aSQL_UPDATE) {
+        SQL_UPDATE = aSQL_UPDATE;
+    }
+
+    public static int updateEstado() throws SQLException {
+        String sqlUpdate = getSQL_UPDATE() + getLista_Ids();
+        int resultado = 0;
+        //Conexion con bbdd y executar       
+        Connection conexion = null;
+        try {
+
+//            conexion = Connect.getConexion(prop, logger);
+//            Statement s = conexion.createStatement();
+//            resultado = s.executeUpdate(sqlUpdate);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.log(Level.INFO, "Exception: {0}", e.getMessage());
+
+        } finally {
+            // Cerramos la conexion a la base de datos. 
+            conexion.close();
+        }
+        return resultado;
+    }
+
+    private static String getLista_Ids() {
+        return "( " + StringUtils.join(LISTA_ID_UPDATE, ',') + " )";
+    }
+
+    /**
+     * @return the LISTA_ID_UPDATE
+     */
+    public static List<String> getLISTA_ID_UPDATE() {
+        return LISTA_ID_UPDATE;
+    }
+
+    /**
+     * @param aLISTA_ID_UPDATE the LISTA_ID_UPDATE to set
+     */
+    public static void setLISTA_ID_UPDATE(List<String> aLISTA_ID_UPDATE) {
+        LISTA_ID_UPDATE = aLISTA_ID_UPDATE;
+    }
+
+} //CLASS
 
 //TODO.- Una vez creado el .dbf intentar los typedata de BASEBAS
 //    private static void readDbf(File fileDbf) {
