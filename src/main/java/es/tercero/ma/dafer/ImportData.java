@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -128,11 +130,10 @@ public class ImportData {
             }
             logger.info("Clientes leidos y escrito en fichero.");
             writer.flush();
-            
-            
+
             //PROVEEDORES
             stmt = conexion.prepareStatement("INSERT INTO  dafer2.cuentascontables (id ,codigo ,nombre ,nombre_cuenta_abierta ,nombre_cuenta_externa) "
-                    + "VALUES(NULL, ?, ?, '', '');");
+                    + "VALUES(NULL, ?, ?, '', '');", Statement.RETURN_GENERATED_KEYS);
 
             //stmt2 = conexion.prepareStatement("UPDATE dafer2.Proveedores SET cuentascontable_id = ? WHERE cif = ? ");
             StringBuffer sb = new StringBuffer();
@@ -141,28 +142,34 @@ public class ImportData {
                 List<String> values = entry.getValue();
                 stmt.setString(1, ctacon); //CTACON
                 stmt.setString(2, values.get(0)); //Nombre
-                
+
                 sb = new StringBuffer("UPDATE dafer2.Proveedores SET cuentascontable_id =");
                 sb.append("X");
                 sb.append("  WHERE cif = ");
                 sb.append("'" + values.get(1) + "'");
-                
-                //logger.info(stmt.toString());               
+
+                //logger.info(stmt.toString());     
+                //EScribe en fichero la sentencia
                 writer.write(stmt.toString().trim() + "\n");
                 writer.write(sb.toString().trim() + "\n");
-                sb.delete(0, sb.length()-1);
+                sb.delete(0, sb.length() - 1);
             }
             logger.info("Proveedores leidos y escrito en fichero.");
             writer.flush();
 
-//            int retorno = stmt.executeUpdate();
-//            if (retorno > 0) {
-//                System.out.println("Insertado correctamente");
-//            }
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating user failed, no rows affected.");
+            }
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                long id = generatedKeys.getLong(1);
+            }
+
         } catch (SQLException sqle) {
             logger.error("SQLState = " + sqle.getMessage());
             logger.error("SQLErrorCode = " + sqle.getMessage());
-        } catch (Exception e) {
+        } catch (IOException e) {
             logger.error("Exception = " + e.getMessage());
         } finally {
             if (conexion != null) {
