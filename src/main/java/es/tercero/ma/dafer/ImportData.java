@@ -132,7 +132,7 @@ public class ImportData {
             
             //PROVEEDORES
             stmt = conexion.prepareStatement("INSERT INTO  dafer2.cuentascontables (id ,codigo ,nombre ,nombre_cuenta_abierta ,nombre_cuenta_externa) "
-                    + "VALUES(NULL, ?, ?, '', '');)");
+                    + "VALUES(NULL, ?, ?, '', '');");
 
             //stmt2 = conexion.prepareStatement("UPDATE dafer2.Proveedores SET cuentascontable_id = ? WHERE cif = ? ");
             StringBuffer sb = new StringBuffer();
