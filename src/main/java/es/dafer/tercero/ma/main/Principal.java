@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -30,6 +29,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 /*
  * To change this template, choose Tools | Templates
@@ -41,7 +42,7 @@ import javax.swing.SwingUtilities;
  */
 public class Principal extends JPanel {
 
-    static Logger logger = Logger.getLogger("daferDbase Principal");
+    private final static Logger logger = Logger.getLogger(Principal.class);
     static FileHandler fh;
 
     private static final DateFormat DF = new SimpleDateFormat("dd/MM/yyyy");
@@ -90,37 +91,27 @@ public class Principal extends JPanel {
                     dateH = DF.parse(inputH.getText());
 
                 } catch (ParseException ex) {
-                    Logger.getLogger(Principal.class
-                            .getName()).log(Level.SEVERE, null, ex);
+                    logger.info("ParseException " + ex.getMessage());
                 }
 
                 if (source instanceof JButton) {
-                    Date[] args = {dateD, dateH};
                     try {
-                        try {
-                            int result = DBFWriterTest.WriterDbf(frame, args, logger);
-                            if (result == 0) {
-                                JOptionPane.showMessageDialog(frame, "Fichero creado correctamente.");
-                                JOptionPane.showMessageDialog(frame, "NOTA: Actualizar campos !! ");
-                                jbt3.setEnabled(true);
-                                logger.info("Proceso finalizado correctamente.");
-                            } else {
-                                logger.warning("ERROR: se ha producido un error.");
-                            }
-                        } catch (SQLException ex) {
-                            Logger.getLogger(Principal.class
-                                    .getName()).log(Level.SEVERE, null, ex);
-
-                        } catch (JDBFException ex) {
-                            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+                        Date[] args = {dateD, dateH};
+                        int result = DBFWriterTest.WriterDbf(frame, args);
+                        if (result == 0) {
+                            JOptionPane.showMessageDialog(frame, "Fichero creado correctamente.");
+                            JOptionPane.showMessageDialog(frame, "NOTA: Actualizar campos !! ");
+                            jbt3.setEnabled(true);
+                            logger.info("Proceso finalizado correctamente.");
+                        } else {
+                            logger.error("ERROR: se ha producido un error.");
                         }
-                    } catch (DBFException ex) {
-                        Logger.getLogger(Principal.class
-                                .getName()).log(Level.SEVERE, null, ex);
-
                     } catch (IOException ex) {
-                        Logger.getLogger(Principal.class
-                                .getName()).log(Level.SEVERE, null, ex);
+                        java.util.logging.Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (SQLException ex) {
+                        java.util.logging.Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (JDBFException ex) {
+                        java.util.logging.Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -128,27 +119,23 @@ public class Principal extends JPanel {
 
         box.add(jbt3, BorderLayout.CENTER);
         jbt3.setEnabled(false);
-        jbt3.addActionListener(
-                new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                 Object source = e.getSource();
-                  if (source instanceof JButton) {
-                     try {
-                         int result = DBFWriterTest.updateEstado();
-                         if (result == 0) {
-                                JOptionPane.showMessageDialog(frame, "Actualizado Estado "
-                                        + " de Factura Clientes. Correctamente");
-                                jbt3.setEnabled(false);
-                                logger.info("Proceso finalizado correctamente.");
-                            } else {
-                                logger.warning("ERROR: se ha producido un error.");
-                            }
-                     } catch (SQLException ex) {
-                         Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
-                     }
-                  }
-            }
-        });
+//        jbt3.addActionListener(
+//                new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                Object source = e.getSource();
+//                if (source instanceof JButton) {
+//                    int result = DBFWriterTest.updateEstado();
+//                    if (result == 0) {
+//                        JOptionPane.showMessageDialog(frame, "Actualizado Estado "
+//                                + " de Factura Clientes. Correctamente");
+//                        jbt3.setEnabled(false);
+//                        logger.info("Proceso finalizado correctamente.");
+//                    } else {
+//                        logger.warn("ERROR: se ha producido un error.");
+//                    }
+//                }
+//            }
+//        });
 
         //BOTON SALIR
         box.add(Box.createVerticalStrut(30));
@@ -176,19 +163,15 @@ public class Principal extends JPanel {
 
         try {
             getProperties();
+            BasicConfigurator.configure();
             // This block configure the logger with handler and formatter  
-            fh = new FileHandler(prop.getProperty("pathLog"));
-            logger.addHandler(fh);
-            logger.log(Level.INFO, "Path log: {0}", prop.getProperty("pathLog"));
-            SimpleFormatter formatter = new SimpleFormatter();
-            fh.setFormatter(formatter);
+//            fh = new FileHandler(prop.getProperty("pathLog"));
+//            logger.addHandler(fh);
+            logger.info("Path log: {0} " + prop.getProperty("pathLog"));
+            
 
         } catch (SecurityException e) {
-            e.printStackTrace();
-            logger.log(Level.SEVERE, "Main: {0}", e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.log(Level.SEVERE, "Main: {0}", e.getMessage());
+            logger.error("Error SecurityException: " + e.getMessage());
         }
 
         logger.info("Iniciando proceso....");
@@ -206,15 +189,13 @@ public class Principal extends JPanel {
             // load a properties file
             prop.load(input);
         } catch (IOException ex) {
-            ex.printStackTrace();
-            logger.log(Level.SEVERE, "getProperties IOException: {0}", ex.getMessage());
+            logger.error("Error IOException: " + ex.getMessage());
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    logger.log(Level.SEVERE, "getProperties IOException: {0}", e.getMessage());
+                    logger.error("Error IOException: " + e.getMessage());
                 }
             }
         }

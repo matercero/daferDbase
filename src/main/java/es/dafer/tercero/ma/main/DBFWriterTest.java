@@ -4,14 +4,13 @@ import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFWriter;
 import es.dafer.tercero.ma.db.Connect;
-import static es.dafer.tercero.ma.main.Principal.logger;
 import es.dafer.tercero.ma.utils.JDBFException;
 import static es.dafer.tercero.ma.utils.JDBField.setFields;
+import es.dafer.tercero.ma.utils.Utils;
+import static es.dafer.tercero.ma.utils.Utils.setProperties;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,9 +23,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 /*
  * To change this template, choose Tools | Templates
@@ -38,10 +37,10 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DBFWriterTest {
 
+    private final static Logger logger = Logger.getLogger(DBFWriterTest.class);
     private static final int TOTAL = 34;
-    private static String PATH_FILE = ""; //PARA WINDOWS DAFAULT
-    private static String SQL_UPDATE = "UPDATE  facturas_clientes SET estadosfacturascliente_id = 2 WHERE id IN ";
     private static List<String> LISTA_ID_UPDATE = new ArrayList<String>();
+
     static Properties prop = new Properties();
     static SimpleDateFormat DT = new SimpleDateFormat("yyyyMMdd");
 
@@ -56,16 +55,17 @@ public class DBFWriterTest {
      * @throws SQLException
      * @throws es.dafer.tercero.ma.utils.JDBFException
      */
-    public static int WriterDbf(JFrame frame, Date args[], Logger logger)
+    public static int WriterDbf(JFrame frame, Date args[])
             throws DBFException, IOException, SQLException, JDBFException {
 
         int resultado = 0;
+
         setProperties();
 
         logger.info("Iniciando WriterDbf....");
 
         DBFField fields[] = new DBFField[TOTAL];
-        setFields(fields, logger);
+        setFields(fields);
 
         DBFWriter writer = new DBFWriter();
         writer.setFields(fields);
@@ -76,16 +76,16 @@ public class DBFWriterTest {
 
         try {
 
-            conexion = Connect.getConexion(prop, logger);
+            conexion = Connect.getConexion(prop);
 
             setCabecera(conexion, writer, fechaDesde, fechaHasta);
 
             setDetalle(conexion, writer, fechaDesde, fechaHasta);
 
-            /*            Creacion de File TENCOM             */
-            String nameFile = PATH_FILE + DT.format(new Date()) + ".dbf";
+//            Creacion de File TENCOM            
+            String nameFile = Utils.getPATH_FILE() + DT.format(new Date()) + ".dbf";
             File fileDbf = new File(nameFile);
-            logger.log(Level.INFO, "Fichero creado: {0}", nameFile);
+            logger.info("Fichero creado: {0} " + nameFile);
 
 //            readDbf(fileDbf);
             FileOutputStream fos = new FileOutputStream(fileDbf);
@@ -94,7 +94,7 @@ public class DBFWriterTest {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.log(Level.INFO, "Exception: {0}", e.getMessage());
+            logger.info("Exception: {0} " + e.getMessage());
             resultado = -1;
         } finally {
             // Cerramos la conexion a la base de datos. 
@@ -104,43 +104,10 @@ public class DBFWriterTest {
         return resultado;
     }
 
-    private static void setProperties() {
-
-        InputStream input = null;
-
-        try {
-
-            input = new FileInputStream("config.properties");
-            prop.load(input);
-
-            // get the property value and print it out
-            if (Integer.valueOf(prop.getProperty("flagOS")) < 0) {
-                PATH_FILE = prop.getProperty("pathFileLinux");
-            } else {
-                PATH_FILE = prop.getProperty("pathFileWin");
-            }
-
-            logger.log(Level.CONFIG, "PATH_FILE {0}", PATH_FILE);
-            logger.log(Level.CONFIG, "Conectado a bbdd = {0}", prop.getProperty("pathConnectMysql"));
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
-
     private static void setDetalle(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
         String sql = getConsulta(fechaDesde, fechaHasta);
-        logger.log(Level.INFO, "DETALLE Consulta SQL = {0}", sql);
+        logger.info("DETALLE Consulta SQL = {0} " + sql);
         ResultSet rs = s.executeQuery(sql);
         // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
         String auxFecha = "";
@@ -188,7 +155,7 @@ public class DBFWriterTest {
             rowData = new Object[TOTAL];
             cnt++;
         }
-        logger.log(Level.INFO, "DETALLE Total registros = {0}", cnt);
+        logger.info("DETALLE Total registros = {0} " + cnt);
     }
 
     private static void setCabecera(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
@@ -196,7 +163,7 @@ public class DBFWriterTest {
         String sql = getConsulta(fechaDesde, fechaHasta);
         ResultSet rs = s.executeQuery(sql);
 
-        logger.log(Level.INFO, "CABECERA Consulta SQL = {0}", sql);
+        logger.info("CABECERA Consulta SQL = {0} " + sql);
         String auxFechaFactura, auxTOTFAC = "";
         List<String> ListIdsFactClientesUpdate = new ArrayList<String>();
 
@@ -240,7 +207,7 @@ public class DBFWriterTest {
             cnt++;
         }
         setLISTA_ID_UPDATE(ListIdsFactClientesUpdate);
-        logger.log(Level.INFO, "CABECERA Total registros = {0}", cnt);
+        logger.info("CABECERA Total registros = {0} " + cnt);
     }
 
     private static String getConsulta(String fechaDesde, String fechaHasta) {
@@ -291,10 +258,10 @@ public class DBFWriterTest {
         numeroVencimiento = (numeroVencimiento == null ? "1" : numeroVencimiento);
         diasVencimiento = (diaEntreVencimiento == null ? 0 : Integer.parseInt(diaEntreVencimiento));
 
-//        logger.log(Level.INFO, "numeroVencimiento = {0} | diasVencimiento = {1}", new Object[]{numeroVencimiento, diasVencimiento});
+//        logger.info( "numeroVencimiento = {0} | diasVencimiento = {1}", new Object[]{numeroVencimiento, diasVencimiento});
         switch (Integer.parseInt(numeroVencimiento)) {
             case 1:
-//                logger.log(Level.INFO, "FECVTO1 = {0} | IMPVTO1 = {1}", new Object[]{auxFecha, auxTOTFAC});
+//                logger.info( "FECVTO1 = {0} | IMPVTO1 = {1}", new Object[]{auxFecha, auxTOTFAC});
                 if (diasVencimiento <= 1) {
                     rowData[++i] = DT.parse(auxFecha);
                     rowData[++i] = auxTOTFAC;
@@ -374,41 +341,7 @@ public class DBFWriterTest {
         return DT.parse(DT.format(c.getTime()));
     }
 
-    /**
-     * @return the SQL_UPDATE
-     */
-    public static String getSQL_UPDATE() {
-        return SQL_UPDATE;
-    }
-
-    /**
-     * @param aSQL_UPDATE the SQL_UPDATE to set
-     */
-    public static void setSQL_UPDATE(String aSQL_UPDATE) {
-        SQL_UPDATE = aSQL_UPDATE;
-    }
-
-    public static int updateEstado() throws SQLException {
-        String sqlUpdate = getSQL_UPDATE() + getLista_Ids();
-        int resultado = 0;
-        //Conexion con bbdd y executar       
-        Connection conexion = null;
-        try {
-
-//            conexion = Connect.getConexion(prop, logger);
-//            Statement s = conexion.createStatement();
-//            resultado = s.executeUpdate(sqlUpdate);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.log(Level.INFO, "Exception: {0}", e.getMessage());
-
-        } finally {
-            // Cerramos la conexion a la base de datos. 
-            conexion.close();
-        }
-        return resultado;
-    }
+   
 
     private static String getLista_Ids() {
         return "( " + StringUtils.join(LISTA_ID_UPDATE, ',') + " )";

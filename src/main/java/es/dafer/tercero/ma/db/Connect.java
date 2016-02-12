@@ -20,6 +20,8 @@ import javax.swing.JOptionPane;
  */
 public class Connect {
 
+    private final static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Connect.class);
+
     //public static void main(String[] args) throws SQLException {
     public void conect() throws SQLException {
 //        Connection conexion = null;
@@ -42,7 +44,7 @@ public class Connect {
 //        }
     }
 
-    public static Connection getConexion(Properties prop, Logger logger) {
+    public static Connection getConexion(Properties prop) {
         Connection conexion = null;
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -51,9 +53,9 @@ public class Connect {
                     prop.getProperty("dbuser"), prop.getProperty("dbpassword"));
             logger.info("Conexion a bbdd EXITO");
         } catch (ClassNotFoundException e) {
-            logger.log(Level.INFO, "Class no encontrada : {0}", e.getMessage());
+            logger.error("ClassNotFoundException : " + e.getMessage());
         } catch (SQLException e) {
-            logger.log(Level.INFO, "SQLException : {0}", e.getMessage());
+            logger.error("SQLException : " + e.getMessage());
         }
         return conexion;
     }
