@@ -20,8 +20,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,12 +141,9 @@ public class UpdateCliPRo {
             }
             logger.info("Clientes leidos y escrito en fichero.");
             writer.flush();
-            stmt.close();
 
             //PROVEEDORES
             stmt2 = conexion.prepareStatement(UPDATE_PROVEEDOR);
-
-
             for (Map.Entry<String, String> entry : dataProveed.entrySet()) {
                 String ctacon = entry.getKey();
                 String cif = entry.getValue();

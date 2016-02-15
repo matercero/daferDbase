@@ -51,7 +51,7 @@ public class Connect {
             // Establecemos la conexión con la base de datos.
             conexion = DriverManager.getConnection(prop.getProperty("pathConnectMysql"),
                     prop.getProperty("dbuser"), prop.getProperty("dbpassword"));
-            logger.info("Conexion a bbdd EXITO");
+            logger.info("Conexion "+!conexion.isClosed()+" esta abierta. EXITO");
         } catch (ClassNotFoundException e) {
             logger.error("ClassNotFoundException : " + e.getMessage());
         } catch (SQLException e) {

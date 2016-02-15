@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -155,7 +156,7 @@ public class DBFWriterTest {
             rowData = new Object[TOTAL];
             cnt++;
         }
-        logger.info("DETALLE Total registros = {0} " + cnt);
+        logger.info("DETALLE Total registros =  " + cnt);
     }
 
     private static void setCabecera(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
@@ -207,7 +208,10 @@ public class DBFWriterTest {
             cnt++;
         }
         setLISTA_ID_UPDATE(ListIdsFactClientesUpdate);
-        logger.info("CABECERA Total registros = {0} " + cnt);
+        
+        calculaAlbaranes(ListIdsFactClientesUpdate);
+        
+        logger.info("CABECERA Total registros = " + cnt);
     }
 
     private static String getConsulta(String fechaDesde, String fechaHasta) {
@@ -359,6 +363,23 @@ public class DBFWriterTest {
      */
     public static void setLISTA_ID_UPDATE(List<String> aLISTA_ID_UPDATE) {
         LISTA_ID_UPDATE = aLISTA_ID_UPDATE;
+    }
+
+    private static void calculaAlbaranes(List<String> ListIdsFactClientesUpdate) {
+        
+        for (Iterator<String> iterator = ListIdsFactClientesUpdate.iterator(); iterator.hasNext();) {
+            String idFactura = iterator.next();
+            String sql = "SELECT fc.id, ac.id, cc.codigo "
+                    + " FROM dafer2.facturas_clientes fc, "
+                    + " dafer2. albaranesclientes ac, "
+                    + " dafer2. centrosdecostes cc "
+                    + " WHERE ac.facturas_cliente_id = fc.id "
+                    + " and ac.centrosdecoste_id = cc.id "
+                    + " and fc.id = '" + idFactura + "'";          
+            
+            logger.info(sql.toString());
+        }
+        
     }
 
 } //CLASS
