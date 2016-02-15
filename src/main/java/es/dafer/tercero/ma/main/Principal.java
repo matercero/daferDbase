@@ -1,8 +1,7 @@
 package es.dafer.tercero.ma.main;
 
-import com.linuxense.javadbf.DBFException;
-import es.dafer.tercero.ma.db.UpdateEstadoClientes;
 import static es.dafer.tercero.ma.main.DBFWriterTest.prop;
+import es.dafer.tercero.ma.utils.DateLabelFormatter;
 import es.dafer.tercero.ma.utils.JDBFException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -19,7 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
-import java.util.logging.SimpleFormatter;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
@@ -27,8 +25,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
+import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
+import net.sourceforge.jdatepicker.impl.UtilDateModel;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
@@ -61,7 +61,7 @@ public class Principal extends JPanel {
 
         JLabel labelD, labelH;
 
-        labelD = new JLabel("Fecha Desde: dd/mm/yyyy");
+        labelD = new JLabel("Fecha desde: ");
         //  inputD = new JFormattedTextField(df.format(new Date()));
         inputD = new JFormattedTextField("31/01/2014");
         inputD.setColumns(10);
@@ -78,6 +78,16 @@ public class Principal extends JPanel {
         box.add(inputD);
         box.add(labelH);
         box.add(inputH);
+
+        UtilDateModel model = new UtilDateModel();
+        JDatePanelImpl datePanel = new JDatePanelImpl(model);
+        JDatePickerImpl datePickerFrom = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+        JDatePickerImpl datePickerTo = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+        
+        box.add(labelD);
+        box.add(datePickerFrom);
+        box.add(labelH);
+        box.add(datePickerTo);
 
         box.add(jbt1);
         jbt1.addActionListener(new ActionListener() {
@@ -164,12 +174,7 @@ public class Principal extends JPanel {
         try {
             getProperties();
             BasicConfigurator.configure();
-            // This block configure the logger with handler and formatter  
-//            fh = new FileHandler(prop.getProperty("pathLog"));
-//            logger.addHandler(fh);
             logger.info("Path log: {0} " + prop.getProperty("pathLog"));
-            
-
         } catch (SecurityException e) {
             logger.error("Error SecurityException: " + e.getMessage());
         }
