@@ -499,6 +499,19 @@ public class JDBField {
         fields[i].setDataType(DBFField.FIELD_TYPE_C);
         fields[i].setFieldLength(1);
         //logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
+        
+        fields[++i] = new DBFField();
+        fields[i].setName("BASEIMPCC");
+        fields[i].setDataType(DBFField.FIELD_TYPE_C);
+        fields[i].setFieldLength(10);
+//        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
+
+        fields[++i] = new DBFField();
+        fields[i].setName("CC");
+        fields[i].setDataType(DBFField.FIELD_TYPE_N);
+        fields[i].setFieldLength(10);
+        fields[i].setDecimalCount(0);
+//        logger.log(Level.INFO, "Campo {0}-{1} - DataType : {2}", new Object[]{i, fields[i].getName(), getFieldDataType(fields[i].getDataType())});
 
         //logger.log(Level.INFO, "Total columnas en fichero .dbf = {0}", i);
     }

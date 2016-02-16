@@ -6,6 +6,7 @@ import com.linuxense.javadbf.DBFWriter;
 import es.dafer.tercero.ma.db.Connect;
 import es.dafer.tercero.ma.utils.JDBFException;
 import static es.dafer.tercero.ma.utils.JDBField.setFields;
+import es.dafer.tercero.ma.utils.MapMap;
 import es.dafer.tercero.ma.utils.Utils;
 import static es.dafer.tercero.ma.utils.Utils.setProperties;
 import java.io.File;
@@ -20,10 +21,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 import javax.swing.JFrame;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -39,8 +41,12 @@ import org.apache.log4j.Logger;
 public class DBFWriterTest {
 
     private final static Logger logger = Logger.getLogger(DBFWriterTest.class);
-    private static final int TOTAL = 34;
+    private static final int TOTAL = 36;
     private static List<String> LISTA_ID_UPDATE = new ArrayList<String>();
+    private static final String TB_ALBARANESCLIENTES = "ALBARANESCLIENTES";
+    private static final String TB_ALBARANESCLIENTESREPARACIONES = "ALBARANESCLIENTESREPARACIONES";
+    private static final String CAMPO_ALBARANESCLIENTES = "PRECIO";
+    private static final String CAMPO_ALBARANESCLIENTESREPARACIONES = "BASEIMPONIBLE";
 
     static Properties prop = new Properties();
     static SimpleDateFormat DT = new SimpleDateFormat("yyyyMMdd");
@@ -86,7 +92,7 @@ public class DBFWriterTest {
 //            Creacion de File TENCOM            
             String nameFile = Utils.getPATH_FILE() + DT.format(new Date()) + ".dbf";
             File fileDbf = new File(nameFile);
-            logger.info("Fichero creado: {0} " + nameFile);
+            logger.info("Fichero creado: " + nameFile);
 
 //            readDbf(fileDbf);
             FileOutputStream fos = new FileOutputStream(fileDbf);
@@ -95,7 +101,7 @@ public class DBFWriterTest {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.info("Exception: {0} " + e.getMessage());
+            logger.info("Exception: " + e.getMessage());
             resultado = -1;
         } finally {
             // Cerramos la conexion a la base de datos. 
@@ -152,6 +158,20 @@ public class DBFWriterTest {
             rowData[++i] = rs.getString("CODFORPAG").trim();
             rowData[++i] = rs.getString("TIPFORPAG").trim();
 
+            Map<String, String> mapAlbaranesClientes = getAlbaranesClientes(conexion, rs.getString("ID_FACTURACLIENTE").trim(),
+                    TB_ALBARANESCLIENTES, CAMPO_ALBARANESCLIENTES);
+            
+            if (mapAlbaranesClientes != null && mapAlbaranesClientes.size() > 0) {
+                for (Map.Entry<String, String> entry : mapAlbaranesClientes.entrySet()) {
+                    rowData[++i] = entry.getValue().trim(); //BASEIMPCC _C
+                    rowData[++i] = Double.parseDouble(entry.getKey().trim()); //CC _N
+                    break;
+                }
+            } else {
+                    rowData[++i] = null; //BASEIMPCC _C
+                    rowData[++i] = null; //CC _N                
+            }
+
             writer.addRecord(rowData);
             rowData = new Object[TOTAL];
             cnt++;
@@ -203,14 +223,15 @@ public class DBFWriterTest {
             rowData[++k] = rs.getString("CODFORPAG").trim();
             rowData[++k] = rs.getString("TIPFORPAG").trim();
 
+            rowData[++k] = null; //BASEIMPCC
+            rowData[++k] = null; //CC
+
             writer.addRecord(rowData);
             rowData = new Object[TOTAL];
             cnt++;
         }
         setLISTA_ID_UPDATE(ListIdsFactClientesUpdate);
-        
-        calculaAlbaranes(ListIdsFactClientesUpdate);
-        
+
         logger.info("CABECERA Total registros = " + cnt);
     }
 
@@ -345,8 +366,6 @@ public class DBFWriterTest {
         return DT.parse(DT.format(c.getTime()));
     }
 
-   
-
     private static String getLista_Ids() {
         return "( " + StringUtils.join(LISTA_ID_UPDATE, ',') + " )";
     }
@@ -365,21 +384,23 @@ public class DBFWriterTest {
         LISTA_ID_UPDATE = aLISTA_ID_UPDATE;
     }
 
-    private static void calculaAlbaranes(List<String> ListIdsFactClientesUpdate) {
-        
-        for (Iterator<String> iterator = ListIdsFactClientesUpdate.iterator(); iterator.hasNext();) {
-            String idFactura = iterator.next();
-            String sql = "SELECT fc.id, ac.id, cc.codigo "
-                    + " FROM dafer2.facturas_clientes fc, "
-                    + " dafer2. albaranesclientes ac, "
-                    + " dafer2. centrosdecostes cc "
-                    + " WHERE ac.facturas_cliente_id = fc.id "
-                    + " and ac.centrosdecoste_id = cc.id "
-                    + " and fc.id = '" + idFactura + "'";          
-            
-            logger.info(sql.toString());
+    //private static MapMap getAlbaranesClientes(Connection conexion, String idFactura) throws SQLException {
+    private static Map getAlbaranesClientes(Connection conexion, String idFactura, String tabla, String campo) throws SQLException {
+        Statement s = conexion.createStatement();
+        Map<String, String> mm = new HashMap<String, String>();
+        String sql = " SELECT ac.facturas_cliente_id idFactura, "
+                + " replace(TRUNCATE(SUM(ac." + campo + "), 2),'.',',') BASEIMPCC, cc.codigo CC "
+                + " FROM " + tabla + " ac, centrosdecostes cc "
+                + " WHERE facturas_cliente_id = '" + idFactura + "'"
+                + " AND ac.centrosdecoste_id = cc.id "
+                + " GROUP BY centrosdecoste_id ";
+        logger.info(sql.toString());
+        ResultSet rs = s.executeQuery(sql);
+        while (rs.next()) {
+            logger.info("idFact=" + rs.getString("idFactura") + " BASEIMPCC= " + rs.getString("BASEIMPCC") + " CC= " + rs.getString("CC"));
+            mm.put(rs.getString("CC"), rs.getString("BASEIMPCC"));
         }
-        
+        return mm;
     }
 
 } //CLASS

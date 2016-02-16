@@ -69,7 +69,7 @@ public class Principal extends JPanel {
 
         labelH = new JLabel("Hasta: ");
         // inputH = new JFormattedTextField(df.format(new Date()));
-        inputH = new JFormattedTextField("31/02/2014");
+        inputH = new JFormattedTextField("15/02/2014");
         inputH.setColumns(10);
 //        inputH.setMaximumSize(new Dimension(10, 0));
 
