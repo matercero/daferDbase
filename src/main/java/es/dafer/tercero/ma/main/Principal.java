@@ -4,8 +4,13 @@ import static es.dafer.tercero.ma.main.DBFWriterTest.prop;
 import es.dafer.tercero.ma.utils.DateLabelFormatter;
 import es.dafer.tercero.ma.utils.JDBFException;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
@@ -13,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.FileHandler;
@@ -49,60 +53,52 @@ public class Principal extends JPanel {
     static JFrame frame = new JFrame("Generación TENCOM Dafer.");
 
     JFormattedTextField inputD, inputH;
+    JDatePickerImpl datePickerFrom, datePickerTo;
+
     Box box = Box.createVerticalBox();
 
-    JButton jbt1 = new JButton("Crear fichero DBF");
-    JButton jbt2 = new JButton("Cerrar");
+    JButton jbtGenFileDBF = new JButton("Crear fichero DBF");
+    JButton jbtCerrar = new JButton("Cerrar");
     // UPDATE LOS REGITROS CONTABILIZADOS
     final JButton jbt3 = new JButton("Actualizar Estado Facturas Clientes");
-
 //    JButton jbt4 = new JButton("Button4");
     public Principal() {
 
         JLabel labelD, labelH;
-
         labelD = new JLabel("Fecha desde: ");
-        //  inputD = new JFormattedTextField(df.format(new Date()));
-        inputD = new JFormattedTextField("31/01/2014");
-        inputD.setColumns(10);
-//        inputD.setMaximumSize(new Dimension(10, 0));
-
         labelH = new JLabel("Hasta: ");
-        // inputH = new JFormattedTextField(df.format(new Date()));
-        inputH = new JFormattedTextField("15/02/2014");
-        inputH.setColumns(10);
-//        inputH.setMaximumSize(new Dimension(10, 0));
 
-        box.add(Box.createVerticalStrut(10));
+        UtilDateModel modelFrom = new UtilDateModel();
+        UtilDateModel modelTo = new UtilDateModel();
+        modelFrom.setDate(2014, 1, 31);
+        modelFrom.setSelected(true);
+        modelTo.setDate(2014, 2, 15);
+        modelTo.setSelected(true);
+
+        JDatePanelImpl datePanelFrom = new JDatePanelImpl(modelFrom);
+        JDatePanelImpl datePanelTo = new JDatePanelImpl(modelTo);
+
+        datePickerFrom = new JDatePickerImpl(datePanelFrom, new DateLabelFormatter());
+        datePickerFrom.setMaximumSize(new Dimension(200, 30));
+
+        datePickerTo = new JDatePickerImpl(datePanelTo, new DateLabelFormatter());
+        datePickerTo.setMaximumSize(new Dimension(200, 30));
+
+        box.add(Box.createVerticalStrut(20));
         box.add(labelD);
-        box.add(inputD);
+        box.add(datePickerFrom, BorderLayout.CENTER);
         box.add(labelH);
-        box.add(inputH);
+        box.add(datePickerTo, BorderLayout.CENTER);
 
-        UtilDateModel model = new UtilDateModel();
-        JDatePanelImpl datePanel = new JDatePanelImpl(model);
-        JDatePickerImpl datePickerFrom = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-        JDatePickerImpl datePickerTo = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-        
-        box.add(labelD);
-        box.add(datePickerFrom);
-        box.add(labelH);
-        box.add(datePickerTo);
-
-        box.add(jbt1);
-        jbt1.addActionListener(new ActionListener() {
+        box.add(jbtGenFileDBF, BorderLayout.LINE_START);
+        jbtGenFileDBF.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
 
                 Date dateD = new Date();
                 Date dateH = new Date();
-                try {
-                    dateD = DF.parse(inputD.getText());
-                    dateH = DF.parse(inputH.getText());
-
-                } catch (ParseException ex) {
-                    logger.info("ParseException " + ex.getMessage());
-                }
+                dateD = (Date) datePickerFrom.getModel().getValue();
+                dateH = (Date) datePickerTo.getModel().getValue();
 
                 if (source instanceof JButton) {
                     try {
@@ -110,7 +106,7 @@ public class Principal extends JPanel {
                         int result = DBFWriterTest.WriterDbf(frame, args);
                         if (result == 0) {
                             JOptionPane.showMessageDialog(frame, "Fichero creado correctamente.");
-                            JOptionPane.showMessageDialog(frame, "NOTA: Actualizar campos !! ");
+                            JOptionPane.showMessageDialog(frame, "NOTA: Actualizar campos String > Numeric !! ");
                             jbt3.setEnabled(true);
                             logger.info("Proceso finalizado correctamente.");
                         } else {
@@ -147,10 +143,9 @@ public class Principal extends JPanel {
 //            }
 //        });
 
-        //BOTON SALIR
-        box.add(Box.createVerticalStrut(30));
-        box.add(jbt2, BorderLayout.CENTER);
-        jbt2.addActionListener(
+        //BOTON SALIR       
+        frame.getContentPane().add(BorderLayout.SOUTH, jbtCerrar);
+        jbtCerrar.addActionListener(
                 new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
@@ -161,8 +156,7 @@ public class Principal extends JPanel {
 
     public static void createAndShowGui() {
         frame.add(new Principal());
-        frame.setSize(500, 500);
-        frame.setLayout(new FlowLayout());
+        frame.setSize(400, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationByPlatform(true);
         frame.pack();
@@ -174,11 +168,10 @@ public class Principal extends JPanel {
         try {
             getProperties();
             BasicConfigurator.configure();
-            logger.info("Path log: {0} " + prop.getProperty("pathLog"));
+            logger.info("Path log: " + prop.getProperty("pathLog"));
         } catch (SecurityException e) {
             logger.error("Error SecurityException: " + e.getMessage());
         }
-
         logger.info("Iniciando proceso....");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
