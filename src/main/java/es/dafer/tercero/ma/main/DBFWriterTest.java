@@ -3,7 +3,6 @@ package es.dafer.tercero.ma.main;
 import com.linuxense.javadbf.DBFException;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFWriter;
-import com.sun.xml.internal.bind.v2.TODO;
 import es.dafer.tercero.ma.db.Connect;
 import es.dafer.tercero.ma.utils.JDBFException;
 import static es.dafer.tercero.ma.utils.JDBField.setFields;
@@ -60,19 +59,21 @@ public class DBFWriterTest {
 
     static Properties prop = new Properties();
     static SimpleDateFormat DT = new SimpleDateFormat("yyyyMMdd");
+    static SimpleDateFormat DT_FILE = new SimpleDateFormat("yyyyMMdd_HHmm");
 
     /**
      *
      * @param frame
-     * @param args
-     * @param logger
+     * @param args parametros de fechaDesde y fechaHasta
+     * @param mapArgumentos object que recoge variables para mostrar resumen
+     * final
      * @return 0=OK ; -1=ERROR
      * @throws DBFException
      * @throws IOException
      * @throws SQLException
      * @throws es.dafer.tercero.ma.utils.JDBFException
      */
-    public static int WriterDbf(JFrame frame, Date args[])
+    public static int WriterDbf(JFrame frame, Date args[], Map<String, String> mapArgumentos)
             throws DBFException, IOException, SQLException, JDBFException {
 
         int resultado = 0;
@@ -95,15 +96,15 @@ public class DBFWriterTest {
 
             conexion = Connect.getConexion(prop);
 
-            setCabecera(conexion, writer, fechaDesde, fechaHasta);
+            setCabecera(conexion, writer, fechaDesde, fechaHasta, mapArgumentos);
 
-            setDetalle(conexion, writer, fechaDesde, fechaHasta);
+            setDetalle(conexion, writer, fechaDesde, fechaHasta, mapArgumentos);
 
 //            Creacion de File TENCOM            
-            String nameFile = Utils.getPATH_FILE() + DT.format(new Date()) + ".dbf";
+            String nameFile = Utils.getPATH_FILE() + DT_FILE.format(new Date()) + ".dbf";
             File fileDbf = new File(nameFile);
             logger.info("Fichero creado: " + nameFile);
-
+            mapArgumentos.put("FILEPATH", fileDbf.getAbsolutePath());
             //TODO
 // La idea es. Una vez cargado el fichero, leerlo para cambiar el tipo de fichero de String --> Numeric
 //            readDbf(fileDbf);
@@ -123,18 +124,20 @@ public class DBFWriterTest {
         return resultado;
     }
 
-    private static void setDetalle(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
+    private static void setDetalle(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta,
+            Map<String, String> mapArgumentos) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
         String sql = getConsulta(fechaDesde, fechaHasta);
-        logger.info("DETALLE Consulta SQL = {0} " + sql);
+        logger.info("DETALLE Consulta SQL = " + sql);
 
         // Recorremos el resultado, mientras haya registros para leer, y escribimos el resultado en pantalla. 
         Map<String, String> mapAlbaranesClientes;
         Map<String, String> mapAlbaranesClientesReparaciones;
         Map<String, String> mapRowData;
         String auxFecha, idFacturaCliente = "";
-        int i, cnt = 0;
+        Integer i, cnt = 0;
         boolean masDeUnCentroCoste = false;
+        boolean isReparacion = false;
 
         Object rowData[] = new Object[TOTAL];
         ResultSet rs = s.executeQuery(sql);
@@ -194,6 +197,7 @@ public class DBFWriterTest {
 
             if (mapAlbaranesClientes != null && mapAlbaranesClientes.size() > 0) {
                 masDeUnCentroCoste = mapAlbaranesClientes.size() > 1;
+                logger.info("DETALLE masDeUnCentroCoste=  " + masDeUnCentroCoste);
                 // Inserto el primer albaran en la linea Detalle actual
                 // Si hubiera otro CentrodeCostes se add despues 
                 //    en una nueva linea con los campos 
@@ -216,18 +220,31 @@ public class DBFWriterTest {
 
             if (masDeUnCentroCoste) {
                 //Nuevo registro Detalle rowData
-                insertarNuevoDetalleAlbaran(rowData, mapRowData, mapAlbaranesClientes);
+                logger.info("DETALLE mapAlbaranesClientesReparaciones =  " + isReparacion);
+                insertarNuevoDetalleAlbaran(rowData, mapRowData, mapAlbaranesClientes, isReparacion);
                 writer.addRecord(rowData);
                 rowData = new Object[TOTAL];
                 cnt++;
+
+                if (mapAlbaranesClientesReparaciones != null && mapAlbaranesClientesReparaciones.size() > 0) {
+                     logger.info("DETALLE mapAlbaranesClientesReparaciones =  " + isReparacion);
+                    isReparacion = true;
+                    insertarNuevoDetalleAlbaran(rowData, mapRowData, mapAlbaranesClientesReparaciones, isReparacion);
+                    isReparacion = false;
+                    writer.addRecord(rowData);
+                    rowData = new Object[TOTAL];
+                    cnt++;
+                }
                 masDeUnCentroCoste = false;
             }
             mapRowData = null;
         } //while 
+        mapArgumentos.put("REGDET", cnt.toString());
         logger.info("DETALLE Total registros =  " + cnt);
     }
 
-    private static void setCabecera(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta) throws SQLException, DBFException, ParseException {
+    private static void setCabecera(Connection conexion, DBFWriter writer, String fechaDesde, String fechaHasta,
+            Map<String, String> mapArgumentos) throws SQLException, DBFException, ParseException {
         Statement s = conexion.createStatement();
         String sql = getConsulta(fechaDesde, fechaHasta);
         ResultSet rs = s.executeQuery(sql);
@@ -278,6 +295,7 @@ public class DBFWriterTest {
             rowData = new Object[TOTAL];
             cnt++;
         }
+        mapArgumentos.put("REGCAB", cnt.toString());
         setLISTA_ID_UPDATE(ListIdsFactClientesUpdate);
         logger.info("CABECERA Total registros = " + cnt);
     }
@@ -460,101 +478,100 @@ public class DBFWriterTest {
         return mm;
     }
 
-    private static void insertarNuevoDetalleAlbaran(Object[] rowData, Map<String, String> mapRowData, Map<String, String> mapAlbaranesClientes1) throws ParseException {
-        int i = 0;
-        rowData[i] = mapRowData.get(TIPREG).trim(); //TIPREG          
-        rowData[++i] = DT.parse(mapRowData.get(DOCFEC).trim());
-        rowData[++i] = mapRowData.get(DOCSER).trim();
-        rowData[++i] = mapRowData.get(DOCNUM).trim();
-        rowData[++i] = mapRowData.get(CODTIP).trim(); //CODTIP
-        rowData[++i] = mapRowData.get(CODMOD).trim();
-        rowData[++i] = mapRowData.get(CODTER).trim();
-        rowData[++i] = mapRowData.get(CTACON).trim(); //CTACON
-        rowData[++i] = mapRowData.get(BASEBAS).trim();
-        rowData[++i] = null; //mapRowData.get("IMPTBAS").trim();
-        rowData[++i] = null; // "PORNOR"
-        rowData[++i] = null; // "RECBAS"
-        rowData[++i] = null; // "PORREC"
-        rowData[++i] = null; // "PORTES"
-        rowData[++i] = null; // rs.getDouble("PORFIN");
-        rowData[++i] = null; //rs.getDouble("RFDPP");
-        rowData[++i] = null; //rs.getDouble("DESHOR");
-        rowData[++i] = null; //rs.getDouble("DESKM");
-        rowData[++i] = null; //rs.getString("TOTFAC");
-        rowData[++i] = null; //rs.getString("FECVTO1");
-        rowData[++i] = null; //rs.getString("IMPVTO1");
-        rowData[++i] = null; //rs.getString("FECVTO2");
-        rowData[++i] = null; //rs.getString("IMPVTO2");
-        rowData[++i] = null; //rs.getString("FECVTO3");
-        rowData[++i] = null; //rs.getString("IMPVTO3");
-        rowData[++i] = null; //rs.getString("FECVTO4");
-        rowData[++i] = null; //rs.getString("IMPVTO4");
-        rowData[++i] = null; //rs.getString("FECVTO5");
-        rowData[++i] = null; //rs.getString("IMPVTO5");
-        rowData[++i] = null; //rs.getString("FECVTO6");
-        rowData[++i] = null; //rs.getString("IMPVTO6");
-        rowData[++i] = null; //rs.getDouble("DIETENT");
-        rowData[++i] = null; //rs.getString("CODFORPAG").trim();
-        rowData[++i] = null; //rs.getString("TIPFORPAG").trim();
+    private static void insertarNuevoDetalleAlbaran(Object[] rowData, Map<String, String> mapRowData,
+            Map<String, String> mapAlbaranesClientes1, boolean isReparacion) throws ParseException {
+        if (!isReparacion) {
+            int i = 0;
+            rowData[i] = mapRowData.get(TIPREG).trim(); //TIPREG          
+            rowData[++i] = DT.parse(mapRowData.get(DOCFEC).trim());
+            rowData[++i] = mapRowData.get(DOCSER).trim();
+            rowData[++i] = mapRowData.get(DOCNUM).trim();
+            rowData[++i] = mapRowData.get(CODTIP).trim(); //CODTIP
+            rowData[++i] = mapRowData.get(CODMOD).trim();
+            rowData[++i] = mapRowData.get(CODTER).trim();
+            rowData[++i] = mapRowData.get(CTACON).trim(); //CTACON
+            rowData[++i] = mapRowData.get(BASEBAS).trim();
+            rowData[++i] = null; //mapRowData.get("IMPTBAS").trim();
+            rowData[++i] = null; // "PORNOR"
+            rowData[++i] = null; // "RECBAS"
+            rowData[++i] = null; // "PORREC"
+            rowData[++i] = null; // "PORTES"
+            rowData[++i] = null; // rs.getDouble("PORFIN");
+            rowData[++i] = null; //rs.getDouble("RFDPP");
+            rowData[++i] = null; //rs.getDouble("DESHOR");
+            rowData[++i] = null; //rs.getDouble("DESKM");
+            rowData[++i] = null; //rs.getString("TOTFAC");
+            rowData[++i] = null; //rs.getString("FECVTO1");
+            rowData[++i] = null; //rs.getString("IMPVTO1");
+            rowData[++i] = null; //rs.getString("FECVTO2");
+            rowData[++i] = null; //rs.getString("IMPVTO2");
+            rowData[++i] = null; //rs.getString("FECVTO3");
+            rowData[++i] = null; //rs.getString("IMPVTO3");
+            rowData[++i] = null; //rs.getString("FECVTO4");
+            rowData[++i] = null; //rs.getString("IMPVTO4");
+            rowData[++i] = null; //rs.getString("FECVTO5");
+            rowData[++i] = null; //rs.getString("IMPVTO5");
+            rowData[++i] = null; //rs.getString("FECVTO6");
+            rowData[++i] = null; //rs.getString("IMPVTO6");
+            rowData[++i] = null; //rs.getDouble("DIETENT");
+            rowData[++i] = null; //rs.getString("CODFORPAG").trim();
+            rowData[++i] = null; //rs.getString("TIPFORPAG").trim();
 
-        for (Map.Entry<String, String> entry : mapAlbaranesClientes1.entrySet()) {
-            //hay que coger la siguiente iteracion. La 1º ya esta incluida           
-//            rowData[++i] = entry.getValue().trim(); //BASEIMPCC _C
-//            rowData[++i] = Double.parseDouble(entry.getKey().trim()); //CC _N
-            rowData[++i] = null; //BASEIMPCC _C
-            rowData[++i] = null; //CC _N
-            break;
+            boolean salta1 = true;
+            for (Map.Entry<String, String> entry : mapAlbaranesClientes1.entrySet()) {
+                //hay que coger la siguiente iteracion. La 1º ya esta incluida
+                if (salta1) {
+                    salta1 = false;
+                    continue;
+                }
+                rowData[++i] = entry.getValue().trim(); //BASEIMPCC _C
+                rowData[++i] = Double.parseDouble(entry.getKey().trim()); //CC _N
+                break;
+            }
+        } else {
+            // isReparacion ; Detalle para albaranClienteReparacion
+             int i = 0;
+            rowData[i] = mapRowData.get(TIPREG).trim(); //TIPREG          
+            rowData[++i] = DT.parse(mapRowData.get(DOCFEC).trim());
+            rowData[++i] = mapRowData.get(DOCSER).trim();
+            rowData[++i] = mapRowData.get(DOCNUM).trim();
+            rowData[++i] = mapRowData.get(CODTIP).trim(); //CODTIP
+            rowData[++i] = mapRowData.get(CODMOD).trim();
+            rowData[++i] = mapRowData.get(CODTER).trim();
+            rowData[++i] = mapRowData.get(CTACON).trim(); //CTACON
+            rowData[++i] = mapRowData.get(BASEBAS).trim();
+            rowData[++i] = null; //mapRowData.get("IMPTBAS").trim();
+            rowData[++i] = null; // "PORNOR"
+            rowData[++i] = null; // "RECBAS"
+            rowData[++i] = null; // "PORREC"
+            rowData[++i] = null; // "PORTES"
+            rowData[++i] = null; // rs.getDouble("PORFIN");
+            rowData[++i] = null; //rs.getDouble("RFDPP");
+            rowData[++i] = null; //rs.getDouble("DESHOR");
+            rowData[++i] = null; //rs.getDouble("DESKM");
+            rowData[++i] = null; //rs.getString("TOTFAC");
+            rowData[++i] = null; //rs.getString("FECVTO1");
+            rowData[++i] = null; //rs.getString("IMPVTO1");
+            rowData[++i] = null; //rs.getString("FECVTO2");
+            rowData[++i] = null; //rs.getString("IMPVTO2");
+            rowData[++i] = null; //rs.getString("FECVTO3");
+            rowData[++i] = null; //rs.getString("IMPVTO3");
+            rowData[++i] = null; //rs.getString("FECVTO4");
+            rowData[++i] = null; //rs.getString("IMPVTO4");
+            rowData[++i] = null; //rs.getString("FECVTO5");
+            rowData[++i] = null; //rs.getString("IMPVTO5");
+            rowData[++i] = null; //rs.getString("FECVTO6");
+            rowData[++i] = null; //rs.getString("IMPVTO6");
+            rowData[++i] = null; //rs.getDouble("DIETENT");
+            rowData[++i] = null; //rs.getString("CODFORPAG").trim();
+            rowData[++i] = null; //rs.getString("TIPFORPAG").trim();
+            
+            for (Map.Entry<String, String> entry : mapAlbaranesClientes1.entrySet()) {
+                rowData[++i] = entry.getValue().trim(); //BASEIMPCC _C
+                rowData[++i] = Double.parseDouble(entry.getKey().trim()); //CC _N
+                break;
+            }
         }
     }
-} //CLASS
 
-//TODO.- Una vez creado el .dbf intentar los typedata de BASEBAS
-//    private static void readDbf(File fileDbf) {
-//        try {
-//
-//            // create a DBFReader object
-//            //
-//            InputStream inputStream = new FileInputStream(fileDbf); // take dbf file as program argument
-//            DBFReader reader = new DBFReader(inputStream);
-//
-//            // get the field count if you want for some reasons like the following
-//            //
-//            int numberOfFields = reader.getFieldCount();
-//
-//            // use this count to fetch all field information
-//            // if required
-//            //
-//            for (int i = 0; i < numberOfFields; i++) {
-//
-//                DBFField field = reader.getField(i);
-//
-//                // do something with it if you want
-//                // refer the JavaDoc API reference for more details
-//                //
-//                System.out.println(field.getName());
-//                if (field.getName().equalsIgnoreCase("BASEBAS")) {
-//                    field.setDataType(DBFField.FIELD_TYPE_C);
-//                    field.setFieldLength(10);
-//                    field.setDecimalCount(2);
-//                }
-//            }
-//
-//            // Now, lets us start reading the rows
-//            Object[] rowObjects;
-//
-//            while ((rowObjects = reader.nextRecord()) != null) {
-//
-//                for (int i = 0; i < rowObjects.length; i++) {
-//
-//                    System.out.println(rowObjects[i]);
-//                }
-//            }
-//
-//            // By now, we have itereated through all of the rows
-//            inputStream.close();
-//        } catch (DBFException e) {
-//            System.out.println(e.getMessage());
-//        } catch (IOException e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
+} //CLASS

@@ -4,13 +4,7 @@ import static es.dafer.tercero.ma.main.DBFWriterTest.prop;
 import es.dafer.tercero.ma.utils.DateLabelFormatter;
 import es.dafer.tercero.ma.utils.JDBFException;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
@@ -20,6 +14,8 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import javax.swing.Box;
@@ -50,7 +46,7 @@ public class Principal extends JPanel {
     static FileHandler fh;
 
     private static final DateFormat DF = new SimpleDateFormat("dd/MM/yyyy");
-    static JFrame frame = new JFrame("Generación TENCOM Dafer.");
+    static JFrame frame = new JFrame("DAFER. Generación Fichero contabilidad TENCOM.");
 
     JFormattedTextField inputD, inputH;
     JDatePickerImpl datePickerFrom, datePickerTo;
@@ -62,6 +58,7 @@ public class Principal extends JPanel {
     // UPDATE LOS REGITROS CONTABILIZADOS
     final JButton jbt3 = new JButton("Actualizar Estado Facturas Clientes");
 //    JButton jbt4 = new JButton("Button4");
+
     public Principal() {
 
         JLabel labelD, labelH;
@@ -70,9 +67,9 @@ public class Principal extends JPanel {
 
         UtilDateModel modelFrom = new UtilDateModel();
         UtilDateModel modelTo = new UtilDateModel();
-        modelFrom.setDate(2014, 1, 31);
+        modelFrom.setDate(2015, 8, 25);
         modelFrom.setSelected(true);
-        modelTo.setDate(2014, 2, 15);
+        modelTo.setDate(2015, 9, 25);
         modelTo.setSelected(true);
 
         JDatePanelImpl datePanelFrom = new JDatePanelImpl(modelFrom);
@@ -99,14 +96,22 @@ public class Principal extends JPanel {
                 Date dateH = new Date();
                 dateD = (Date) datePickerFrom.getModel().getValue();
                 dateH = (Date) datePickerTo.getModel().getValue();
+                Map<String,String> mapArgumentos = new HashMap<String,String>();
 
                 if (source instanceof JButton) {
                     try {
-                        Date[] args = {dateD, dateH};
-                        int result = DBFWriterTest.WriterDbf(frame, args);
+                        Date[] argsDates = {dateD, dateH};
+                        int result = DBFWriterTest.WriterDbf(frame, argsDates, mapArgumentos);
                         if (result == 0) {
                             JOptionPane.showMessageDialog(frame, "Fichero creado correctamente.");
-                            JOptionPane.showMessageDialog(frame, "NOTA: Actualizar campos String > Numeric !! ");
+                            String msg =  "<html>Fichero generado: "  + mapArgumentos.get("FILEPATH")
+                                    + "<br>Registros Cabeceras generados:  " +mapArgumentos.get("REGCAB")
+                                    + "<br>Registros Detalles generados:  " +mapArgumentos.get("REGDET") 
+                                    + "</html>";                                    
+
+                            JOptionPane.showMessageDialog(frame,msg, "Resumen proceso", 
+                                    JOptionPane.INFORMATION_MESSAGE);
+                           
                             jbt3.setEnabled(true);
                             logger.info("Proceso finalizado correctamente.");
                         } else {
