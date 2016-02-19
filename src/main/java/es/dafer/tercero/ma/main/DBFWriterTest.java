@@ -172,7 +172,7 @@ public class DBFWriterTest {
             rowData[++i] = null; // rs.getDouble("PORFIN");
             rowData[++i] = rs.getDouble("RFDPP");
             rowData[++i] = rs.getDouble("DESHOR");
-            rowData[++i] = rs.getDouble("DESKM");
+            rowData[++i] = null; //rs.getDouble("DESKM");
             rowData[++i] = null; //rs.getString("TOTFAC");
             rowData[++i] = null; //rs.getString("FECVTO1");
             rowData[++i] = null; //rs.getString("IMPVTO1");
@@ -278,7 +278,7 @@ public class DBFWriterTest {
             rowData[++i] = rs.getDouble("PORFIN");
             rowData[++i] = null; //RFDPP vacio
             rowData[++i] = null; //DESHOR vacio
-            rowData[++i] = rs.getDouble("DESKM");
+            rowData[++i] = null; //rs.getDouble("DESKM");
             auxTOTFAC = rs.getString("TOTFAC").trim();
             rowData[++i] = auxTOTFAC;
             // FECHA E IMPUESTOS VENCIMIENTOS
